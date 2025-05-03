@@ -13,14 +13,14 @@ class Sale(models.Model):
         ('EUR', 'Euro'),
         ('TK.', 'Bangladeshi Taka'),
     ]
-    project = models.OneToOneField(
+    project = models.ForeignKey(
         Project,
         on_delete=models.CASCADE,
         related_name='sales_entry'
     )
 
     
-    invoice_no = models.CharField(max_length=50, unique=True)
+    invoice_no = models.CharField(max_length=50)
     invoice_date = models.DateField()
 
     report_no = models.CharField(max_length=20)

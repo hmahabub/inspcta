@@ -7,7 +7,16 @@ from .models import Sale, Task
 from .forms import SaleForm, TaskFormSet
 from django.db.models import Q
 
-class SaleListView(LoginRequiredMixin, ListView):
+from django.http import HttpResponseForbidden
+
+class SuperuserRequiredMixin:
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or not request.user.is_superuser:
+            return HttpResponseForbidden("You are not authorized to view this page.")
+        return super().dispatch(request, *args, **kwargs)
+
+
+class SaleListView(LoginRequiredMixin,SuperuserRequiredMixin, ListView):
     model = Sale
     template_name = 'sales/sale_list.html'
     context_object_name = 'sales'
@@ -24,7 +33,7 @@ class SaleListView(LoginRequiredMixin, ListView):
         return queryset
 
 
-class SaleCreateView(PermissionRequiredMixin, CreateView):
+class SaleCreateView(PermissionRequiredMixin,SuperuserRequiredMixin, CreateView):
     model = Sale
     form_class = SaleForm
     template_name = 'sales/sale_form.html'
@@ -52,7 +61,7 @@ class SaleCreateView(PermissionRequiredMixin, CreateView):
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
-class SaleUpdateView(PermissionRequiredMixin, UpdateView):
+class SaleUpdateView(PermissionRequiredMixin,SuperuserRequiredMixin, UpdateView):
     model = Sale
     form_class = SaleForm
     template_name = 'sales/sale_form.html'
@@ -82,16 +91,16 @@ class SaleUpdateView(PermissionRequiredMixin, UpdateView):
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
-class SaleDetailView(LoginRequiredMixin, DetailView):
+class SaleDetailView(LoginRequiredMixin,SuperuserRequiredMixin, DetailView):
     model = Sale
     template_name = 'sales/sale_detail.html'
 
-class SaleInvoiceView(LoginRequiredMixin, DetailView):
+class SaleInvoiceView(LoginRequiredMixin,SuperuserRequiredMixin, DetailView):
     model = Sale
     template_name = 'sales/sale_invoice.html'
     context_object_name = 'info'
 
-class SaleDeleteView(PermissionRequiredMixin, DeleteView):
+class SaleDeleteView(PermissionRequiredMixin,SuperuserRequiredMixin, DeleteView):
     model = Sale
     template_name = 'sales/sale_confirm_delete.html'
     success_url = reverse_lazy('sales:list')

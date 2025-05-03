@@ -42,6 +42,7 @@ class Command(BaseCommand):
         # keep_pks = [1,2]
         # Sale.objects.exclude(pk__in=keep_pks).delete()
 
+
         with open(log_file_path, 'w', newline='') as csvfile:
             fieldnames = [
                 'timestamp', 
@@ -80,7 +81,7 @@ class Command(BaseCommand):
                         exps_data = json.loads(exps_data)
                         
             except FileNotFoundError:
-                self.stdout.write(self.style.ERROR('operation_expense.json file not found'))
+                self.stdout.write(self.style.ERROR('sales.json file not found'))
                 return
             except json.JSONDecodeError as e:
                 self.stdout.write(self.style.ERROR(f'Invalid JSON format: {str(e)}'))
@@ -110,7 +111,8 @@ class Command(BaseCommand):
             }
             fail_count = 0
             success_count = 0
-
+            processed_invoice_no = set()
+            counter = 0
             for exp_data in exps_data:
                 try:
                     if isinstance(exp_data, str):
@@ -119,7 +121,11 @@ class Command(BaseCommand):
                     fields = exp_data['fields']
                     old_pk = exp_data['pk']
                     name = fields.get('job', '')
+                    invoice_no = fields.get('invoice_no', '')
 
+                    if invoice_no in processed_invoice_no:
+                        invoice_no = invoice_no + "-C"+str(counter)
+                        counter +=1
 
                     # Create new project
                     exp = Sale()
@@ -164,12 +170,13 @@ class Command(BaseCommand):
                             t.save()
                     log_action(old_pk, exp.pk, 'CREATE', name, 'SUCCESS')
                     success_count += 1
+                    processed_invoice_no.add(invoice_no)
                     self.stdout.write(self.style.SUCCESS(f'Successfully migrated sales: {old_pk}'))
                 
                 except Exception as e:
                     log_action( old_pk, '', 'CREATE', name, 'FAILED', str(e))
                     fail_count += 1
-                    self.stdout.write(self.style.ERROR(f'Failed to migrate expense {fields.get("old_pk", "Unknown")}: {str(e)}'))
+                    self.stdout.write(self.style.ERROR(f'Failed to migrate sales {fields.get("old_pk", "Unknown")}: {str(e)}'))
 
             # Summary
             self.stdout.write(self.style.SUCCESS(f'\nMigration Summary:'))

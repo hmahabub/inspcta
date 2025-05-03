@@ -151,7 +151,8 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.SUCCESS(f'Successfully migrated employee: {employee.name}-{employee.phone}-{employee.email}'))
                 
                 except Exception as e:
-                    log_action(old_pk, '', 'CREATE/UPDATE', name, 'FAILED', str(e))
+                    new_pk = Employee.objects.filter(nid=employee.nid).first().pk or ''
+                    log_action(old_pk, new_pk, 'CREATE/UPDATE', name, 'FAILED', str(e))
                     self.stdout.write(self.style.ERROR(f'Failed to migrate employee {fields.get("name", "Unknown")}: {str(e)}'))
 
             # Summary

@@ -1,11 +1,19 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Q
 from .models import Client
 from .forms import ClientForm, ClientUpdateForm
 
-class ClientListView(LoginRequiredMixin, ListView):
+from django.http import HttpResponseForbidden
+
+class SuperuserRequiredMixin:
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or not request.user.is_superuser:
+            return HttpResponseForbidden("You are not authorized to view this page.")
+        return super().dispatch(request, *args, **kwargs)
+
+class ClientListView(SuperuserRequiredMixin, ListView):
     model = Client
     template_name = 'clients/client_list.html'
     context_object_name = 'object_list'
@@ -29,12 +37,12 @@ class ClientListView(LoginRequiredMixin, ListView):
             
         return queryset.order_by('name')
 
-class ClientDetailView(LoginRequiredMixin, DetailView):
+class ClientDetailView(SuperuserRequiredMixin, DetailView):
     model = Client
     template_name = 'clients/client_detail.html'
     context_object_name = 'object'
 
-class ClientCreateView(PermissionRequiredMixin, CreateView):
+class ClientCreateView(PermissionRequiredMixin,SuperuserRequiredMixin, CreateView):
     model = Client
     form_class = ClientForm
     template_name = 'clients/client_form.html'
@@ -45,7 +53,7 @@ class ClientCreateView(PermissionRequiredMixin, CreateView):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
 
-class ClientUpdateView(PermissionRequiredMixin, UpdateView):
+class ClientUpdateView(PermissionRequiredMixin,SuperuserRequiredMixin, UpdateView):
     model = Client
     form_class = ClientUpdateForm
     template_name = 'clients/client_form.html'
@@ -57,7 +65,7 @@ class ClientUpdateView(PermissionRequiredMixin, UpdateView):
         kwargs['instance'] = self.object
         return kwargs
 
-class ClientDeleteView(PermissionRequiredMixin, DeleteView):
+class ClientDeleteView(PermissionRequiredMixin,SuperuserRequiredMixin, DeleteView):
     model = Client
     template_name = 'clients/client_confirm_delete.html'
     success_url = reverse_lazy('clients:list')

@@ -1,0 +1,23 @@
+timestamp,model,old_pk,new_pk,action,name,status,error
+2025-05-03T15:11:29.072453,Employee,1,1134,CREATE/UPDATE,SANKAR CHOWDHURY ,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.072453,Employee,2,1135,CREATE/UPDATE,MD.AL MASUD,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.088084,Employee,3,1136,CREATE/UPDATE,MD.SHAH JAMAL,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.088084,Employee,4,1137,CREATE/UPDATE,RABIUL ALAM,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.088084,Employee,5,1138,CREATE/UPDATE,MD.ABIRUL ISLAM,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.103703,Employee,6,1139,CREATE/UPDATE,MD.KHURSHID ALAM,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.103703,Employee,7,1140,CREATE/UPDATE,KAZI LIPAN HOSSAIN,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.103703,Employee,8,1141,CREATE/UPDATE,MD.OMUR FARUK,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.119328,Employee,9,1142,CREATE/UPDATE,RAJU AHMED,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.119328,Employee,10,1143,CREATE/UPDATE,MRINAL KANTI SARKER,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.119328,Employee,11,1144,CREATE/UPDATE,MD.NAWSHAD ALI,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.119328,Employee,12,1134,CREATE/UPDATE,SANKAR CHOWDHURY,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.119328,Employee,13,1145,CREATE/UPDATE,MONIRUZZAMAN MONI ,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.134950,Employee,14,1146,CREATE/UPDATE,MD MAFIZUR RAHMAN ,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.134950,Employee,15,1147,CREATE/UPDATE,MD AL AMIN ,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.134950,Employee,16,1148,CREATE/UPDATE,MIR MONOWAR HOSSAIN,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.134950,Employee,17,1149,CREATE/UPDATE,MD. JOBAIR NOOR RAKIB,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.150577,Employee,18,1150,CREATE/UPDATE,ATIKUR RAHAMAN,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.150577,Employee,19,1151,CREATE/UPDATE,TUSHAR CHOUDHURY,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.150577,Employee,20,1152,CREATE/UPDATE,FARHAD HOSSAIN SHUVO,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.150577,Employee,21,1153,CREATE/UPDATE,IMAM HOSSAIN RAYHAN,FAILED,UNIQUE constraint failed: employees_employee.nid
+2025-05-03T15:11:29.166227,Employee,22,1154,CREATE/UPDATE,MD ABDUL HAQUE FARHAD,FAILED,UNIQUE constraint failed: employees_employee.nid

@@ -30,7 +30,7 @@ ALLOWED_HOSTS = [
     'new.inspcta.com', 
     'inspcta.com',
     'www.new.inspcta.com',
-    'localhost:8000'
+    'localhost'
 
 
 ]
@@ -113,6 +113,28 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+import os
+
+# Default: development (local)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+# Use MySQL/PostgreSQL for production (e.g., on cPanel)
+if os.environ.get('DJANGO_ENV') == 'production':
+    DATABASES = {
+        'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'inspctac_new',
+        'USER': 'inspctac_inspctac',
+        'PASSWORD': 'L@9gvP4ETK1*UGUp',
+        'HOST': 'localhost',
+        
+    }
+    }
 
 
 # Password validation
