@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Search and Filter Form -->
+<div class="card mb-4" id ="out">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <select name="year" class="form-select">
+                    <option value="">Year</option>
+                    {% for year in years %}
+                    <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>
+                        {{ year }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="month" class="form-select">
+                    <option value="">Month</option>
+                    {% for month in months %}
+                    <option value="{{ month.0 }}" {% if selected_month == month.0 %}selected{% endif %}>
+                        {{ month.1 }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'expenditure:regular-per-month' %}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-sync-alt"></i> Reset
+                </a>
+            </div>
+        </form><BR><BR>
+        <button onclick="make()" class="btn btn-info">Print</button>
+    </div>
+    </div>
+
+<div id='in'><br>
+    <h5>Regular Payroll {% for month in months %}
+                    {% if selected_month == month.0 %}{{ month.1 }} {% endif %}{% endfor %} {{selected_year}}</h5>
+<table class="table table-hover table-sm table-bordered">
+    <thead class="table-light">
+        <tr>
+            <th>No.</th>
+            <th>Name</th>
+            <th>NID</th>
+            <th>Bkash</th>
+            <th>Projects</th>
+            <th>Total</th>
+            <th>Advance</th>
+            <th>Net Payable</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for expenditure in data %}
+        <tr>
+            <td>{{ forloop.counter0 | add:1 }}</td>
+            <td>{{ expenditure.employee_name }}</td>
+            <td>{{ expenditure.employee_nid }}</td>
+            <td>{{ expenditure.employee_bkash }}</td>
+            <td style="font-size: 10px">{{ expenditure.projects }}</td>
+            <td>{{ expenditure.total_cost }}</td>
+            <td>{{ expenditure.paid_in_advance }}</td>
+            <td>{{ expenditure.net_payable }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center py-4">No expenditures found</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr class="table-active">
+            <td colspan="5" class="text-end"><strong>Total:</strong></td>
+            <td><strong>{{ total_amount }}</strong></td>
+            <td><strong>{{ total_paid_in_advance }}</strong></td>
+            <td><strong>{{ total_net_payable }}</strong></td>
+        </tr>
+    </tfoot>
+</table>
+</div>
+<script type="text/javascript">
+  function make(){
+    document.getElementById("base").style.display ="none"
+    document.getElementById("out").style.display ="none"
+    document.getElementById("in").style.display ="block"
+    print()
+  }
+
+
+</script> 
+<style type="text/css">
+    @media print{
+        body{
+            background-color: white;
+        }
+        table{
+            font-size: 12px;
+        }
+    }
+</style>  
+        {% endblock %}
+

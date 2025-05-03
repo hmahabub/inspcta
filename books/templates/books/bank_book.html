@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bank Book</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px;
+            text-align: right;
+        }
+        th {
+            background: #f3f3f3;
+        }
+        td.desc, th.desc {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h2>Bank Book</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th class="desc">Description</th>
+                <th>Debit (Dr)</th>
+                <th>Credit (Cr)</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% with balance=opening_balance %}
+                <tr>
+                    <td></td>
+                    <td class="desc"><strong>Opening Balance</strong></td>
+                    <td></td>
+                    <td></td>
+                    <td>{{ balance }}</td>
+                </tr>
+
+                {% for entry in entries %}
+                    {% with
+                        new_balance=balance|add:entry.credit|add:entry.debit|floatformat:2
+                    %}
+                        {% if entry.credit %}
+                            {% with balance=balance|add:entry.credit %}
+                        {% else %}
+                            {% with balance=balance|add:-entry.debit %}
+                        {% endif %}
+                            <tr>
+                                <td>{{ entry.date }}</td>
+                                <td class="desc">{{ entry.desc }}</td>
+                                <td>{% if entry.debit %}{{ entry.debit }}{% endif %}</td>
+                                <td>{% if entry.credit %}{{ entry.credit }}{% endif %}</td>
+                                <td>{{ balance }}</td>
+                            </tr>
+                        {% endwith %}
+                    {% endwith %}
+                {% endfor %}
+            {% endwith %}
+        </tbody>
+    </table>
+</body>
+</html>

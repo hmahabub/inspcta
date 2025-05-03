@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Expenditures for {{ employee.name }}</h2>
+<div class="card-body">
+    <div class="row">
+        <div class="col-md-6">
+            <h5>Basic Information</h5>
+            <table class="table table-bordered">
+                <tr>
+                    <th width="30%">Name</th>
+                    <td>
+                        {{ employee.name }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Position</th>
+                    <td>{{ employee.designation }}</td>
+                </tr>
+                <tr>
+                    <th>NID</th>
+                    <td>{{ employee.nid }}</td>
+                </tr>
+                <tr>
+                    <th>Phone</th>
+                    <td>{{ employee.phone }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <h5>Account details</h5>
+            <table class="table table-bordered">
+                <tr>
+                    <th width="30%">Bkash</th>
+                    <td>
+                        {{ employee.bkash }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Bank name</th>
+                    <td>
+                        {{ employee.bank_name }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Account number</th>
+                    <td>
+                        {{ employee.account_number }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Month</th>
+                    <td>
+                        {% for month_num, month_name in months %}
+                        {% if selected_month == month_num|stringformat:"s" %}{{month_name}}{% endif %} {% endfor %} {{ selected_year }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Filter Form -->
+<form method="get" id="filterForm">
+    <div class="row">
+        <div class="col-md-3">
+            <select name="month" class="form-control">
+                <option value="">All Months</option>
+                {% for month_num, month_name in months %}
+                    <option value="{{ month_num }}" {% if selected_month == month_num|stringformat:"s" %}selected{% endif %}>
+                        {{ month_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="year" class="form-control">
+                <option value="">All Years</option>
+                {% for year in years %}
+                    <option value="{{ year }}" {% if selected_year == year|stringformat:"s" %}selected{% endif %}>
+                        {{ year }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            {% if selected_month and selected_year %}
+            <button type="button" class="btn btn-info ml-2" onclick="window.print()">
+                <i class="fas fa-print"></i> Print
+            </button>
+            {% endif %}
+        </div>
+        <div class="col-md-4 text-right">
+            <a href="{% url 'expenditure:regular-create' %}?month={{ selected_month }}&year={{ selected_year }}" 
+               class="btn btn-success">
+                Add New Expenditure [Regular]
+            </a>
+        </div>
+    </div>
+</form>
+
+<hr>
+
+<!-- Expenditure Table -->
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Advance Payment</th>
+                <th>Net Payable</th>
+                <th class="no-print">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expenditure in expenditures %}
+            <tr>
+                <td>{{ expenditure.date|date:"d-m-Y" }}</td>
+                <td>{{ expenditure.total }}</td>
+                <td>{{ expenditure.paid_in_advance }}</td>
+                <td>{{ expenditure.net_payable }}</td>
+                <td class="no-print">
+                    <a href="{% url 'expenditure:regular-update' expenditure.pk %}?month={{ selected_month }}&year={{ selected_year }}" 
+                       class="btn btn-sm btn-warning">Edit</a>
+                   
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No expenditures found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td></td>
+                <td>{{ total_amount }}</td>
+                <td>{{ total_advance }}</td>
+                <td>{{ total_net_payable }}</td>
+                <td class="no-print">
+                    
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<!-- Print Header (only shows when printing) -->
+<div class="print-header" style="display: none;">
+    <h2>Monthly Expenditure Report</h2>
+    <p>Employee: {{ employee.name }}</p>
+    <p>Month: {{ selected_month|stringformat:"02d" }}/{{ selected_year }}</p>
+    <p>Printed on: {% now "Y-m-d" %}</p>
+    <hr>
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<nav aria-label="Page navigation" class="no-print">
+    <!-- ... existing pagination code ... -->
+</nav>
+{% endif %}
+
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .print-header, .print-header * {
+            display: block !important;
+            visibility: visible;
+        }
+        .table-responsive, .table-responsive * {
+            visibility: visible;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .table th {
+            background-color: #f2f2f2;
+        }
+        .no-print {
+            display: none !important;
+        }
+        @page {
+            size: portrait;
+            margin: 1cm;
+        }
+    }
+</style>
+{% endblock %}

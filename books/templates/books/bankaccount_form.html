@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>{% if object %}Edit{% else %}New{% endif %} Bank Account</h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.bank_name|as_crispy_field }}
+                        {{ form.name|as_crispy_field }}
+                        {{ form.account_number|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.branch|as_crispy_field }}
+                        {{ form.account_type|as_crispy_field }}
+                        {{ form.opening_balance|as_crispy_field }}
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        {{ form.notes|as_crispy_field }}
+                        {{ form.is_active|as_crispy_field }}
+                    </div>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% if object %}Update{% else %}Create{% endif %}
+                    </button>
+                    <a href="{% if object %}{% url 'books:bankaccount_list' %}{% else %}{% url 'books:bankaccount_list' %}{% endif %}" 
+                       class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Format opening balance on blur
+    const balanceField = document.getElementById('id_opening_balance');
+    if (balanceField) {
+        balanceField.addEventListener('blur', function() {
+            if (this.value) {
+                this.value = parseFloat(this.value).toFixed(2);
+            }
+        });
+    }
+    
+    // Dynamic account number validation
+    const accountNumberField = document.getElementById('id_account_number');
+    if (accountNumberField) {
+        accountNumberField.addEventListener('blur', function() {
+            if (this.value && this.value.length < 5) {
+                alert('Account number seems too short. Please verify.');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}a

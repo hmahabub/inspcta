@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-money-bill-wave"></i> Provisionary Expenditure Management</h2>
+        <div>
+            <a href="{% url 'expenditure:provision-create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New
+            </a>
+            
+        </div>
+
+        <div>
+            <a href="{% url 'expenditure:provision-per-month' %}" class="btn btn-primary">
+                <i class="fas fa-file-pdf"></i> Generate Provision Payroll
+            </a>
+            
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <input type="date" name="start_date" class="form-control" 
+                           value="{{ request.GET.start_date }}">
+                </div>
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <input type="date" name="end_date" class="form-control" 
+                               value="{{ request.GET.end_date }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Expenditures Table -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Bkash</th>
+                            <th>Projects</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Advance</th>
+                            <th>Net Payable</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expenditure in object_list %}
+                        <tr>
+                            <td>{{ expenditure.id }}</td>
+                            <td>{{ expenditure.employee }}</td>
+                            <td>{{ expenditure.employee.phone }}</td>
+                            <td>{{ expenditure.project }}</td>
+                            <td>{{ expenditure.date|date:"d-m-Y" }}</td>
+                            <td>{{ expenditure.total }}</td>
+                            <td>{{ expenditure.paid_in_advance }}</td>
+                            <td>{{ expenditure.net_payable }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'expenditure:provision-detail' expenditure.pk %}" class="btn btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'expenditure:provision-update' expenditure.pk %}" class="btn btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center py-4">No expenditures found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-active">
+                            <td colspan="5" class="text-end"><strong>Total:</strong></td>
+                            <td><strong>{{ total_amount }}</strong></td>
+                            <td><strong>{{ total_advance }}</strong></td>
+                            <td ><strong>{{ total_net_payable }}</strong></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

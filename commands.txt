@@ -1,0 +1,10 @@
+python manage.py migrate_employees
+python manage.py migrate_employees_casual
+python manage.py migrate_clients
+python manage.py migrate_projects
+python manage.py migrate_regular_expenditure
+python manage.py migrate_casual_expenditure
+python manage.py migrate_operational_expenditure
+python manage.py migrate_sales
+python manage.py migrate_lv
+python manage.py migrate_mv

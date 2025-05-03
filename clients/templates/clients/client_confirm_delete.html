@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+            <h3><i class="fas fa-exclamation-triangle"></i> Confirm Client Deletion</h3>
+        </div>
+        <div class="card-body">
+            <p>You are about to permanently delete the following client:</p>
+            
+            <div class="alert alert-warning">
+                <h5>{{ object.name }}</h5>
+                <p class="mb-0">Type: {{ object.get_type_display }}</p>
+                <p class="mb-0">Email: {{ object.email }}</p>
+            </div>
+
+            <div class="alert alert-danger">
+                <strong>Warning:</strong> This action cannot be undone. 
+                {% if object.projects.exists %}
+                <br>This client has {{ object.projects.count }} associated project(s) that will also be affected.
+                {% endif %}
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Confirm Delete
+                    </button>
+                    <a href="{% url 'clients:detail' object.pk %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% load math_tags %}
+
+
+{% block content %}
+<div class="container mt-4 ">
+    <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
+        <h2><i class="fas fa-book"></i> Cash Book</h2>
+        <div>
+            <a href="{% url 'books:cashbook_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Entry
+            </a>
+
+
+        </div>
+        <button class="btn btn-info" onclick="print()"><i class="fas fa-file-pdf"></i> Print</button>
+    </div>
+
+    <!-- Account Summary -->
+    <div class="card mb-4 d-print-none">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Period Summary</h5>
+                    <table class="table table-sm">
+                        <tr><th>From</th><td class="text-end">{{ start_date }}</td><th>To</th><td class="text-end">{{ end_date }}</td></tr>
+                        <tr><th colspan="3">Total Debit</th><td class="text-end">{{ total_debit }}৳</td></tr>
+                        <tr><th colspan="3">Total Credit</th><td class="text-end">{{ total_credit }}৳</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="card mb-4 d-print-none">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date }}">
+                </div>
+                <div class="col-md-4">
+                    <select name="transaction_type" class="form-select">
+                        <option value="">All Transaction Types</option>
+                        <option value="DEPOSIT" {% if request.GET.transaction_type == 'DEPOSIT' %}selected{% endif %}>Deposits</option>
+                        <option value="WITHDRAWAL" {% if request.GET.transaction_type == 'WITHDRAWAL' %}selected{% endif %}>Withdrawals</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- cash Book Table (Debit-Credit Format) -->
+    <div class="card d-print-block">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+
+                    <thead class="table-light">
+                        <tr><th colspan="2">From: {{ start_date }}</th><th colspan="2">To: {{ end_date }}</th></tr>
+                        <tr>
+                            <th>Date</th>
+                            <th>Particulars.</th>
+                            <th>Description</th>
+                            <th class="text-end">Debit (Withdrawal)</th>
+                            <th class="text-end">Credit (Deposit)</th>
+                            <th class="text-end">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% with current_balance=0 %}
+                        {% for transaction in transactions %}
+                        {% if forloop.first %}
+                        <!-- Opening Balance Row -->
+                        <tr class="table-info">
+                            <td colspan="3"><strong>Opening Balance</strong></td>
+                            <td class="text-end"></td>
+                            <td class="text-end"></td>
+                            <td class="text-end">
+                            {% if transaction.transaction_type in 'CREDIT' %}
+                            <strong>{{ transaction.current_balance|subtract:transaction.amount }}৳</strong>
+                            {% endif %}
+                            {% if transaction.transaction_type in 'DEBIT' %}
+                            <strong>{{ transaction.current_balance|add:transaction.amount }}৳</strong>
+                            {% endif %}
+                        </td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td>{{ transaction.date|date:"Y-m-d" }}</td>
+                            <td>{{ transaction.particulars }}</td>
+                            <td>
+                                {{ transaction.get_transaction_type_display }}
+                                {% if transaction.description %}<br><small>{{ transaction.description|truncatechars:40 }}</small>{% endif %}
+                            </td>
+                            
+                            <!-- Debit Column (Withdrawals) -->
+                            <td class="text-end">
+                                {% if transaction.transaction_type in 'DEBIT' %}
+                                {{ transaction.amount }}৳
+                                {% endif %}
+                            </td>
+                            
+                            <!-- Credit Column (Deposits) -->
+                            <td class="text-end">
+                                {% if transaction.transaction_type in 'CREDIT' %}
+                                {{ transaction.amount }}৳
+                                {% endif %}
+                            </td>
+                            
+                            <!-- Running Balance -->
+                            <td class="text-end">{{ transaction.current_balance }}৳</td>
+                            
+                        </tr>
+                        {% with current_balance=transaction.current_balance %}
+                            
+                        {% endwith %}
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">No transactions found for this period</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-active">
+                            <td colspan="3" class="text-end"><strong>Totals:</strong></td>
+                            <td class="text-end"><strong>{{ total_debit }}৳</strong></td>
+                            <td class="text-end"><strong>{{ total_credit }}৳</strong></td>
+                            <td class="text-end"><strong>{{ last_balance }}৳</strong></td>
+                        </tr>
+                    </tfoot>
+                    {% endwith %}
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<style type="text/css">
+    @media print {
+        body{
+            background: white;
+        }
+      /* Make container full-width */
+      .container, .container-fluid {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      /* Force desktop layout */
+      .col, .row, [class*="col-"] {
+        float: none !important;
+        display: block !important;
+        width: 100% !important;
+      }
+
+      /* Hide things you don’t want in print */
+      .no-print, .btn, nav, footer {
+        display: none !important;
+      }
+
+      /* Avoid page break in cards or blocks */
+      .card, .table {
+        page-break-inside: avoid;
+      }
+      tfoot { display: table-row-group; }
+    }
+
+</style>
+{% endblock %}

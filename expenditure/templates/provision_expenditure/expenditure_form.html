@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>{% if object %}Update{% else %}Create New{% endif %} Provision Expenditure</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Basic Information</h5>
+                        {{ form.project|as_crispy_field }}
+                        {{ form.employee|as_crispy_field }}
+                        {{ form.date|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Related Entities</h5>
+                        {{ form.payment_method|as_crispy_field }}
+                        {{ form.receipt_number|as_crispy_field }}
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <h5>Fees</h5>
+                    <div class="col-md-6">
+                        
+                        {{ form.ot_hours|as_crispy_field }}
+                        {{ form.ot_rate|as_crispy_field }}
+                         <div>
+                            <label for="ot_total">OT Total:</label>
+                            <input type="text" id="ot_total" readonly>
+                        </div>
+                        {{ form.fixed_amount|as_crispy_field }}
+                        {{ form.conveyance|as_crispy_field }}
+                        {{ form.boat_fee|as_crispy_field }}
+                        {{ form.fooding_fee|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        <h5> </h5>
+                        {{ form.hotel_fee|as_crispy_field }}
+                        {{ form.night_allownce|as_crispy_field }}
+                        {{ form.others|as_crispy_field }}
+                        {{ form.paid_in_advance|as_crispy_field }}
+                        <div>
+                            <label for="total">Total:</label>
+                            <input type="text" id="total" readonly>
+                        </div>
+                        <div>
+                            <label for="net_payable">Net Payable:</label>
+                            <input type="text" id="net_payable" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% if object %}Update{% else %}Create{% endif %}
+                    </button>
+                    <a href="{% if object %}{% url 'expenditure:provision-detail' object.pk %}{% else %}{% url 'expenditure:provision-list' %}{% endif %}" 
+                       class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+            <!-- Include required JS files -->
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            {{ form.media }}
+        </div>
+    </div>
+</div>
+<script>
+    const hoursInput = document.getElementById('id_ot_hours');
+    const rateInput = document.getElementById('id_ot_rate');
+    const fixed_amountInput = document.getElementById('id_fixed_amount');
+    const conveyanceInput = document.getElementById('id_conveyance');
+    const boat_feeInput = document.getElementById('id_boat_fee');
+    const fooding_feeInput = document.getElementById('id_fooding_fee');
+    const hotel_feeInput = document.getElementById('id_hotel_fee');
+    const night_allownceInput = document.getElementById('id_night_allownce');
+    const othersInput = document.getElementById('id_others');
+    const paid_in_advanceInput = document.getElementById('id_paid_in_advance');
+
+    const otTotalInput = document.getElementById('ot_total');
+    const totalInput = document.getElementById('total');
+    const netPayableInput = document.getElementById('net_payable');
+
+    function updateOTTotal() {
+        const hours = parseFloat(hoursInput.value) || 0;
+        const rate = parseFloat(rateInput.value) || 0;
+        otTotalInput.value = (hours * rate).toFixed(2);
+    }
+
+    
+    function updateTotal() {
+        const hours = parseFloat(hoursInput.value) || 0;
+        const rate = parseFloat(rateInput.value) || 0;
+        const fixed_amount = parseFloat(fixed_amountInput.value) || 0;
+        const conveyance = parseFloat(conveyanceInput.value) || 0;
+        const boat_fee = parseFloat(boat_feeInput.value) || 0;
+        const fooding_fee = parseFloat(fooding_feeInput.value) || 0;
+        const hotel_fee = parseFloat(hotel_feeInput.value) || 0;
+        const night_allownce = parseFloat(night_allownceInput.value) || 0;
+        const others = parseFloat(othersInput.value) || 0;
+
+
+        totalInput.value = (hours * rate + fixed_amount + conveyance + boat_fee + fooding_fee + hotel_fee + night_allownce + others ).toFixed(2);
+    }
+
+    function updateNetPayable() {
+        const hours = parseFloat(hoursInput.value) || 0;
+        const rate = parseFloat(rateInput.value) || 0;
+        const fixed_amount = parseFloat(fixed_amountInput.value) || 0;
+        const conveyance = parseFloat(conveyanceInput.value) || 0;
+        const boat_fee = parseFloat(boat_feeInput.value) || 0;
+        const fooding_fee = parseFloat(fooding_feeInput.value) || 0;
+        const hotel_fee = parseFloat(hotel_feeInput.value) || 0;
+        const night_allownce = parseFloat(night_allownceInput.value) || 0;
+        const others = parseFloat(othersInput.value) || 0;
+        const paid_in_advance = parseFloat(paid_in_advanceInput.value) || 0;
+        
+        netPayableInput.value = (hours * rate + fixed_amount + conveyance + boat_fee + fooding_fee + hotel_fee + night_allownce + others - paid_in_advance).toFixed(2);
+    }
+
+
+    hoursInput.addEventListener('input', updateOTTotal);
+    rateInput.addEventListener('input', updateOTTotal);
+
+    hoursInput.addEventListener('input', updateTotal);
+    rateInput.addEventListener('input', updateTotal);
+    fixed_amountInput.addEventListener('input', updateTotal);
+    conveyanceInput.addEventListener('input', updateTotal);
+    boat_feeInput.addEventListener('input', updateTotal);
+    fooding_feeInput.addEventListener('input', updateTotal);
+    hotel_feeInput.addEventListener('input', updateTotal);
+    night_allownceInput.addEventListener('input', updateTotal);
+    othersInput.addEventListener('input', updateTotal);
+
+    hoursInput.addEventListener('input', updateNetPayable);
+    rateInput.addEventListener('input', updateNetPayable);
+    fixed_amountInput.addEventListener('input', updateNetPayable);
+    conveyanceInput.addEventListener('input', updateNetPayable);
+    boat_feeInput.addEventListener('input', updateNetPayable);
+    fooding_feeInput.addEventListener('input', updateNetPayable);
+    hotel_feeInput.addEventListener('input', updateNetPayable);
+    night_allownceInput.addEventListener('input', updateNetPayable);
+    othersInput.addEventListener('input', updateNetPayable);
+    paid_in_advanceInput.addEventListener('input', updateNetPayable);
+
+</script>
+{% endblock %}

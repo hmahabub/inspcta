@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>Employee Details</h4>
+            <div>
+                <a href="{% url 'employees:update' object.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'employees:list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    {% if object.photo %}
+                    <img src="{{ object.photo.url }}" class="img-thumbnail mb-3" width="200">
+                    {% endif %}
+                    <h3>{{ object.name }}</h3>
+                    <p class="text-muted">{{ object.designation }}</p>
+                </div>
+                <div class="col-md-8">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h5>Basic Information</h5>
+                            <p><strong>NID:</strong> {{ object.nid }}</p>
+                            <p><strong>Department:</strong> {{ object.get_department_display }}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge badge-{% if object.is_regular %}success{% else %}warning{% endif %}">
+                                    {{ object.get_employment_status }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Contact Information</h5>
+                            <p><strong>Email:</strong> {{ object.email }}</p>
+                            <p><strong>Phone:</strong> {{ object.phone }}</p>
+                            <p><strong>Address:</strong> {{ object.address }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Financial Information</h5>
+                            <p><strong>Bank:</strong> {{ object.bank_name }}</p>
+                            <p><strong>Account:</strong> {{ object.account_number }}</p>
+                            <p><strong>bKash:</strong> {{ object.bkash }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Emergency Contact</h5>
+                            <p><strong>Contact Person:</strong> {{ object.emergency_contact_person }}</p>
+                            <p><strong>Relationship:</strong> {{ object.get_relation_with_the_person_display }}</p>
+                            <p><strong>Phone:</strong> {{ object.emergency_contact_1 }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

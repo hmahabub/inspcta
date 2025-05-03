@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>{% if object %}Edit{% else %}New{% endif %} Cash Transaction</h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.date|as_crispy_field }}
+                        {{ form.transaction_type|as_crispy_field }}
+                        
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.particulars|as_crispy_field }}
+                        {{ form.amount|as_crispy_field }}
+                    </div>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% if object %}Update{% else %}Create{% endif %}
+                    </button>
+                    <a href="{% if object %}{% url 'books:cashbook_list' %}{% else %}{% url 'books:cashbook_list' %}{% endif %}" 
+                       class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize date picker
+    flatpickr("#id_date", {
+        dateFormat: "Y-m-d",
+        defaultDate: "{{ form.date.value|default:'' }}"
+    });
+    
+    // Format amount on blur
+    const amountField = document.getElementById('id_amount');
+    amountField.addEventListener('blur', function() {
+        if (this.value) {
+            this.value = parseFloat(this.value).toFixed(2);
+        }
+    });
+    
+    // Transaction type change handler
+    const transactionType = document.getElementById('id_transaction_type');
+    if (transactionType) {
+        transactionType.addEventListener('change', function() {
+            // You can add dynamic behavior here if needed
+        });
+    }
+});
+</script>
+{% endblock %}

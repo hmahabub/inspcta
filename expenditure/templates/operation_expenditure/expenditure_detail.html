@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Expenditures for {{ project.project_number }}</h2>
+<div class="card-body">
+    <div class="row">
+        <div class="col-md-6">
+            <h5>Basic Information</h5>
+            <table class="table table-bordered">
+                <tr>
+                    <th width="30%">Client</th>
+                    <td>
+                        {{ project.client }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Vessel Name</th>
+                    <td>{{ project.vessel_name }}</td>
+                </tr>
+                <tr>
+                    <th>Start date</th>
+                    <td>{{ project.starting }}</td>
+                </tr>
+                <tr>
+                    <th>End date</th>
+                    <td>{{ project.ending }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <h5>Expenditure details</h5>
+            <table class="table table-bordered">
+                <tr>
+                    <th width="30%">Regular Cost</th>
+                    <td>
+                        {{ regular_total }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Prov. Cost</th>
+                    <td>
+                        {{ provision_total }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Operational Cost</th>
+                    <td>
+                        {{ operation_total }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Total</th>
+                    <td>
+                        {{ total_amount }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!-- Print Header (only shows when printing) -->
+<div class="print-header" style="display: none;">
+    <h2>Monthly Expenditure Report</h2>
+    <p>Employee: {{ employee.name }}</p>
+    <p>Month: {{ selected_month|stringformat:"02d" }}/{{ selected_year }}</p>
+    <p>Printed on: {% now "Y-m-d" %}</p>
+    <hr>
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<nav aria-label="Page navigation" class="no-print">
+    <!-- ... existing pagination code ... -->
+</nav>
+{% endif %}
+
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .print-header, .print-header * {
+            display: block !important;
+            visibility: visible;
+        }
+        .table-responsive, .table-responsive * {
+            visibility: visible;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .table th {
+            background-color: #f2f2f2;
+        }
+        .no-print {
+            display: none !important;
+        }
+        @page {
+            size: portrait;
+            margin: 1cm;
+        }
+    }
+</style>
+{% endblock %}

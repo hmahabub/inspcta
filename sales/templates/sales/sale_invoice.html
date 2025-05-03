@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Invoice</title>
+	<style type="text/css">
+		a{
+      background: #43D1AF; 
+      color: black;
+      padding: 5px;
+      margin: auto;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 15px;
+      
+  }
+
+   a:hover{
+     
+      background-color:#43D1BF;
+  }
+		body{
+			font:100% Arial, Helvetica, sans-serif;
+			font-size:15px;
+		}
+		textarea{
+			font:100% Arial, Helvetica, sans-serif; 
+
+		}
+		
+		.header{
+			background-color: black;
+			width: 10%;
+			color:white;
+		}
+		th{
+			
+			background-color:mediumseagreen;
+			color:white;
+			border-bottom: 1px solid black;
+			border-right: 1px solid black;
+		}
+		table{
+			text-align:center;
+			margin:auto;
+			width:100%;
+			border: 1px solid black;
+			border-collapse: collapse;
+		}
+		td, th{
+			padding-left: 10px;
+		}
+		#top{
+			display: flex;
+			justify-content: space-between;
+			text-align: left;
+
+		}
+		#top table{
+			border:none;
+			border-collapse: collapse;
+			text-align: left;
+
+		}
+		#top table td{
+			
+			border:1px solid black;
+
+		}
+		.total td{
+			border:2px solid black;
+
+		}
+		.main_table td{
+			text-align: left;
+			border-right: 1px solid black;
+
+		}
+		.main_table tr td:nth-child(1){
+			width: 60%;
+			
+
+		}
+
+
+		.main_table tr td:nth-child(2){
+			width: 25%;
+			text-align: center;
+
+		}
+
+		.main_table tr td:nth-child(3){
+			text-align: right;
+			
+			padding-right: 10px;
+
+		}
+
+		.table tr td:nth-child(1){
+			width: 60%;
+			
+
+		}
+
+
+		.table tr td:nth-child(2){
+			width: 25%;
+		}
+
+		/*table tr td:nth-child(3){
+			text-align: right;
+			
+			padding-right: 10px;
+
+		}*/
+
+
+
+		input{
+			display: block;
+			background-color: cyan;
+			padding: 10px;
+			width: 300px;
+		}
+		#address_bar{
+			width:40%;
+			
+		}
+
+		.bdt{
+			display: none;
+			border: none;
+		}
+		.bdt1{
+			display: none;
+		}
+		.bdt td{
+			border-left: 1px solid black;
+		}
+
+		/*.usd{
+			display: none;
+		}*/
+
+		#bottom_table th{
+			width:50%;
+
+
+		}
+	</style>
+</head>
+<body>
+	
+	<div id="toprint">
+		<div style="min-height: 100px"></div>
+		<div id="top">
+		<span id ="address_bar">
+			<h3>Bill To:</h3>
+			<textarea rows="5" cols="50">{{info.project.client.name}} {{info.project.client.client_address}} {{info.project.client.phone}} {{info.project.client.email}}
+			</textarea><br>
+			Kind Atten: <span id="kindout"><input type="text" value="{{info.project.client.contact_person}}" name="kind" id="kind"></span>
+		</span>
+
+		<span >
+			<h2>INVOICE</h2>
+			<table>
+				<tr>
+					<td>INVOICE NO </td>
+					<td>{{info.invoice_no}}</td>
+				</tr>
+
+				<tr>
+					<td>INVOICE Date</td>
+					<td>{{info.invoice_date}}</td>
+				</tr>
+
+				<tr>
+					<td>Job No.</td>
+					<td>{{info.project.project_number}}</td>
+				</tr>
+
+				<tr>
+					<td>Report No.</td>
+					<td>{{info.report_no}}</td>
+				</tr>
+				<tr>
+					<td>Report Date</td>
+					<td>{{info.report_date}}</td>
+				</tr>
+			</table>
+		</span>
+	</div>
+	<br>
+		<span>
+			<table class="main_table table" style="border-bottom:0px solid black">
+				<tr>
+					<th style="padding: 10px;">DESCRIPTION</th>
+					<th >Quantity</th>
+					<th >Amount in {{info.currency}}</th>
+				</tr>
+
+
+				<tr >
+					<td>Survey Vessel: <span id="addLine1_f"><input type="text" name="line1_f" value="{{info.job.vessel}}" id="line1_f"></span></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr >
+					<td >Job Order No. : <span id="addLine2_f"><input type="text" name="line2_f" id="line2_f" value="{{info.job_order_no|default_if_none:''}}"></span></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr >
+					<td >Shipper :  <span id="addLine3_f"><input type="text" name="line3_f" id="line3_f" value="{{info.shipper|default_if_none:''}}"></span></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr >
+					<td >Buyer:  <span id="addLine4_f"><input type="text" name="line4_f" id="line4_f" value="{{info.buyer|default_if_none:''}}"></span></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr >
+					<td >Cargo :  <span id="addLine5_f"><input type="text" name="line5_f" id="line5_f" value="{{info.cargo|default_if_none:''}}"></span></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr >
+					<td>B/L Quantity : <span id="addLine6_f"><input type="text" name="line6_f" id="line6_f" value="{{info.bl_qtn|default_if_none:''}}"></span></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr >
+					<td>Inspected Quantity :  <span id="addLine7_f"><input type="text" name="line7_f" id="line7_f" value="{{info.ins_qtn|default_if_none:''}}"></span></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr >
+					<td>Date of Inspection :<span id="addLine8_f"><input type="text" name="line8_f" id="line8_f" value="{{info.date_of_ins|default_if_none:''}}"></span></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr >
+					<td>Place of Inspection :  <span id="addLine9_f"><input type="text" name="line9_f" id="line9_f" value='{{ info.plc_of_ins|default_if_none:"" }}'></span></td>
+					<td></td>
+					<td></td>
+				</tr>
+				
+
+				<tr >
+					<td id="addLine"><input type="text" name="line1" id="line1"><button onclick="addLine()">+</button></td>
+					<td id="unit"><input type="text"  id="unitin"></td>
+					<td></td>
+				</tr>
+			</table>
+
+				<table class="usd main_table table" style="border-top:0px solid black">
+				{% for task in info.tasks.all %}
+					<tr>
+					   <td>{{ task.description }}</td>
+					   <td></td>
+					   <td>{{ task.cost }} {{info.currency}}</td>
+					</tr>
+           {% endfor %}
+			</table>
+
+			
+			<table class="table">
+			
+
+				<tr class="total">
+					<td><span id="sub1"><input type="text"  id="insub1"></span></td>
+					<td><span id="sub2"><input type="text"  id="insub2"></span></td>
+					<td></td>
+					
+					
+				</tr>
+
+
+				<tr class="total">
+					<td><span id="word"><input type="text"  id="inword"></span></td>
+					<td >Total</td>
+					<td class="usd{{info.currency}}  1">{{info.total_amount}} {{info.currency}} </td>
+					 
+					
+				</tr>
+
+			</table>
+			
+		
+
+			
+
+		</span>
+		<br>
+
+		<span>
+			<table><tr><td>For any further assistance regarding billing, Please contact as below:</td></tr></table>
+			
+	
+			<table id="bottom_table">
+				<tr>
+					<th>Remitance By Post</th>
+					<th>Elctronic Remitance</th>
+				</tr>
+
+				<tr>
+					<td style="border-right: 1px solid black;">
+						Inspecta Bangladesh Limited<br>
+						Daar E Shahidi, 3rd floor, 69, Agrabad CIA. <br>
+						Chittagong, Bangladesh<br>
+						Tell: +88031-711551, 711552 
+
+					</td>
+					<td>
+						Bank Asia Limited <br>
+						Daar E Shahidi, Ground floor, 69, Agrabad CIA.<br>
+						Chittagong, Bangladesh. <br>
+						Swift Code: BALBBDDH005<br>
+						AlC: 00533007283 
+					</td>
+				</tr>
+
+				
+			</table>
+			<table><tr><td style="border-bottom: 1px solid black">Terms and Conditions: All work and services perform as per Inspecta General Terms & Conditions at
+http://www.lnspectabd.com/terms & Conditions. For any difficulties please contact us immeditately for copy of
+Terms & Conditons. </td></tr>
+<tr style="border-bottom: 1px solid black"><td>The invoice is due on as per agreed price and credit terms.</td></tr>
+<tr style="border-bottom: 1px solid black"><td>Thank You For Your Business! </td></tr>
+</table>
+<br>
+		
+	</div>
+
+
+
+		
+		
+	
+	
+			<button id="button" onclick="make()"><br>Print<br></button>
+
+
+<script type="text/javascript">
+	var count = 1
+
+	
+
+	function addLine(){
+		count += 1
+		line = "line" + count
+		// qtn= "qtn" + count
+		var elm = document.createElement("input")
+		// var elm2 = document.createElement("input")
+		elm.setAttribute("type","text")
+		
+		elm.setAttribute("name",line)
+		elm.setAttribute("id",line)
+
+		// elm2.setAttribute("type","text")
+		
+		// elm2.setAttribute("name",qtn)
+		// elm2.setAttribute("id",qtn)
+
+		document.getElementById("addLine").appendChild(elm)
+		// document.getElementById("addqtn").appendChild(elm2)
+
+	}
+
+	function make(){
+		var rpage = document.body.innerHTML
+		var text=""
+		var text2=""
+		var kind = document.getElementById("kind").value
+		document.getElementById("kindout").innerHTML = kind
+
+		var unit = document.getElementById("unitin").value
+		document.getElementById("unit").innerHTML = unit
+
+		var word = document.getElementById("inword").value
+		document.getElementById("word").innerHTML = word
+
+		var sub1 = document.getElementById("insub1").value
+		document.getElementById("sub1").innerHTML = sub1
+
+		var sub2 = document.getElementById("insub2").value
+		document.getElementById("sub2").innerHTML = sub2
+
+		var addLine1_f = document.getElementById("line1_f").value
+		document.getElementById("addLine1_f").innerHTML = addLine1_f
+
+		var addLine2_f = document.getElementById("line2_f").value
+		document.getElementById("addLine2_f").innerHTML = addLine2_f
+
+		var addLine3_f = document.getElementById("line3_f").value
+		document.getElementById("addLine3_f").innerHTML = addLine3_f
+
+		var addLine4_f = document.getElementById("line4_f").value
+		document.getElementById("addLine4_f").innerHTML = addLine4_f
+
+		var addLine5_f = document.getElementById("line5_f").value
+		document.getElementById("addLine5_f").innerHTML = addLine5_f
+
+
+		var addLine6_f = document.getElementById("line6_f").value
+		document.getElementById("addLine6_f").innerHTML = addLine6_f
+
+		var addLine7_f = document.getElementById("line7_f").value
+		document.getElementById("addLine7_f").innerHTML = addLine7_f
+
+		var addLine8_f = document.getElementById("line8_f").value
+		document.getElementById("addLine8_f").innerHTML = addLine8_f
+
+		var addLine9_f = document.getElementById("line9_f").value
+		document.getElementById("addLine9_f").innerHTML = addLine9_f
+
+
+
+
+		for(i=1; i<=count;i++){
+			line = "line" + i
+			// qtn  = "qtn" + i
+			var ext = document.getElementById(line).value
+			// var ext2 = document.getElementById(qtn).value
+			console.log(ext)
+			text = text  + ext + "<br>"
+			// text2 = text2  + ext2 + "<br>"
+			
+
+
+
+
+		}
+		document.getElementById("addLine").innerHTML= text
+		// document.getElementById("addqtn").innerHTML= text2
+		document.getElementById("button").style.display= "none"
+		print()
+	}
+</script>
+</body>
+</html>

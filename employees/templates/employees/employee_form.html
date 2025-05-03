@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>{% if object %}Update{% else %}Create{% endif %} Employee</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Personal Information</h5>
+                        {{ form.name|as_crispy_field }}
+                        {{ form.nid|as_crispy_field }}
+                        {{ form.marital_status|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Employment Details</h5>
+                        {{ form.department|as_crispy_field }}
+                        {{ form.designation|as_crispy_field }}
+                        {{ form.is_regular|as_crispy_field }}
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h5>Contact Information</h5>
+                        {{ form.email|as_crispy_field }}
+                        {{ form.phone|as_crispy_field }}
+                        {{ form.address|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Financial Information</h5>
+                        {{ form.bkash|as_crispy_field }}
+                        {{ form.bank_name|as_crispy_field }}
+                        {{ form.account_number|as_crispy_field }}
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h5>Emergency Contact</h5>
+                        {{ form.emergency_contact_person|as_crispy_field }}
+                        {{ form.relation_with_the_person|as_crispy_field }}
+                        {{ form.emergency_contact_1|as_crispy_field }}
+                    </div>
+                </div>
+                
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        {% if object %}Update{% else %}Create{% endif %} Employee
+                    </button>
+                    <a href="{% if object %}{% url 'employees:detail' object.pk %}{% else %}{% url 'employees:list' %}{% endif %}" 
+                       class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>Invoice #{{ vessel.invoice_no }}</h4>
+            <div>
+                <a href="{% url 'vessels:update' vessel.pk %}" class="btn btn-warning">Update</a>
+                <a href="{% url 'vessels:delete' vessel.pk %}" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <p><strong>Vessel Name:</strong> {{ vessel.vessel_name }}</p>
+                    <p><strong>Code:</strong> {{ vessel.code }}</p>
+                    <p><strong>Loa:</strong> {{ vessel.loa }}</p>
+                    
+                </div>
+                <div class="col-md-2">
+                    <p><strong>Brdth:</strong> {{ vessel.brdth }}</p>
+                    <p><strong>FB:</strong> {{ vessel.fb }}</p>
+                    
+                </div>
+                <div class="col-md-2">
+                    <p><strong>Light fpk:</strong> {{ vessel.light_fpk }}</p>
+                    <p><strong>Light apk:</strong> {{ vessel.light_apk }}</p>
+                </div>
+            </div>
+        
+
+            <h5 class="mt-4">MVs</h5>
+            <div class="table-responsive">
+            <table class="table table-bordered table-xs">
+                <thead class="thead-light">
+                    <tr>
+
+                        <th>Date</th>
+                        <th>M/V</th>
+                        <th>co_eff</th>
+                        <th>SNKGE(Approx)</th>
+                        <th>Load</th>
+                        <th>FB</th>
+                        <th>DENSTY</th>
+                        <th>CONS(Approx.)</th>   
+                        <th>Q.IN MTS.(Findings)</th>  
+                        <th>FINAL QUANTITY</th>
+                        <th>TPC</th>
+                        <th>LOAD FPK</th>
+                        <th>LOAD APK</th>
+                        <th>FORW DRAFT</th>
+                        <th>AFT DRAFT</th>
+                        <th>MID DRAFT</th>
+                        <th>Action</th>
+                    </tr>
+                    <tr>
+                        <th colspan="19"><a href="{% url 'vessels:mv-create' vessel.pk %}" class="btn btn-warning">Create MV </a></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in vessel.l_vessel.all %}
+                        <tr>
+                            <td>{{ item.date }}</td>
+                            <td>{{ item.m_vessel }}</td>
+                            <td>{{ item.co_eff }}</td>
+                            <td>{{ item.shrinkage }}</td>
+
+                            <td>load</td>
+                            <td>fb</td>
+                            <td>{{ item.density }}</td>
+                            <td>{{ item.cons }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.final_quantity }}</td>
+                            <td>{{ item.tpc }}</td>
+                            <td>{{ item.load_fpk }}</td>
+                            <td>{{ item.load_apk }}</td>                            
+                            <td>{{ item.forw_drft }}</td>
+                            <td>{{ item.mid_drft }}</td>
+                            <td>{{ item.aft_drft }}</td>
+                            <td></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'vessels:list' %}" class="btn btn-secondary">Back to List</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

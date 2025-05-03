@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="jumbotron mt-4">
+        <h1 class="display-4">Welcome to Inspecta ERP</h1>
+        <p class="lead">Comprehensive Enterprise Resource Planning Solution</p>
+        <hr class="my-4">
+        
+        {% if user.is_authenticated %}
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-users"></i> Clients
+                            </h5>
+                            <p class="card-text">Manage client relationships and projects</p>
+                            <a href="{% url 'clients:list' %}" class="btn btn-primary">
+                                Go to Clients
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-user-tie"></i> Employees
+                            </h5>
+                            <p class="card-text">Manage your workforce</p>
+                            <a href="{% url 'employees:list' %}" class="btn btn-primary">
+                                Go to Employees
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-project-diagram"></i> Projects
+                            </h5>
+                            <p class="card-text">Track all ongoing projects</p>
+                            <a href="{% url 'projects:list' %}" class="btn btn-primary">
+                                Go to Projects
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p>Please log in to access the system</p>
+            <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        {% endif %}
+    </div>
+    
+    {% if user.is_authenticated %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Activities</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for activity in recent_activities %}
+                        <li class="list-group-item">
+                            {{ activity.timestamp|date:"M d, Y H:i" }} - 
+                            {{ activity.user }} {{ activity.action }} {{ activity.content_object|default:activity.details }}
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No recent activities</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Quick Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <h3>{{ client_count }}</h3>
+                            <p>Clients</p>
+                        </div>
+                        <div class="col-4">
+                            <h3>{{ employee_count }}</h3>
+                            <p>Employees</p>
+                        </div>
+                        <div class="col-4">
+                            <h3>{{ project_count }}</h3>
+                            <p>Projects</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>Invoice #{{ sale.invoice_no }}</h4>
+            <div>
+                <a href="{% url 'sales:invoice' sale.pk %}" class="btn btn-info"><i class="fas fa-file-pdf"></i> Invoicing</a>
+                <a href="{% url 'sales:update' sale.pk %}" class="btn btn-warning">Update</a>
+                <a href="{% url 'sales:delete' sale.pk %}" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p><strong>Project:</strong> {{ sale.project.project_number }}</p>
+                    <p><strong>Client:</strong> {{ sale.project.client }}</p>
+                    <p><strong>Attn:</strong> {{ sale.project.client.contact_person }}</p>
+                    <p><strong>Address:</strong> {{ sale.project.client.address }}</p>
+                    
+                </div>
+                <div class="col-md-6 text-right">
+                    <p><strong>Invoice No:</strong> {{ sale.invoice_no }}</p>
+                    <p><strong>Invoice Date:</strong> {{ sale.invoice_date|date:"F j, Y" }}</p>
+                    <p><strong>Report No:</strong> {{ sale.report_no }}</p>
+                    <p><strong>Report Date:</strong> {{ sale.report_date|date:"F j, Y" }}</p>
+                </div>
+            </div>
+            
+             <div class="row mb-4">
+                <h5 class="mt-4">Related Info</h5>
+                <div class="col-md-6">
+                    <p><strong>Job Order No:</strong> {{ sale.job_order_no }}</p>
+                    <p><strong>Shipper:</strong> {{ sale.shipper }}</p>
+                    <p><strong>Buyer:</strong> {{ sale.buyer }}</p>
+                    <p><strong>Cargo:</strong> {{ sale.cargo }}</p>
+                    
+                </div>
+                <div class="col-md-6 text-right">
+                    <p><strong>Balance Qty:</strong> {{ sale.bln_qtn }}</p>
+                    <p><strong>Inspection Qty:</strong> {{ sale.ins_qtn }}</p>
+                    <p><strong>Date of Inspection:</strong> {{ sale.date_of_ins }}</p>
+                    <p><strong>Place of Inspection:</strong> {{ sale.plc_of_ins }}</p>
+                </div>
+            </div>
+
+            <h5 class="mt-4">Tasks</h5>
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Description</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in sale.tasks.all %}
+                    <tr>
+                        <td>{{ task.description }}</td>
+                        <td>{{ task.cost }} {{sale.currency}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="table-active">
+                        <th>Total</th>
+                        <th>{{ sale.total_amount }} {{ sale.currency }}</th>
+                    </tr>
+                    <tr class="table-active">
+                        <th>Recieved Amount</th>
+                        <th>{{ sale.recieved_amount }} {{ sale.currency }}</th>
+                    </tr>
+                    <tr class="table-active">
+                        <th>VAT</th>
+                        <th>-{{ sale.vat }} {{ sale.currency }}</th>
+                    </tr>
+                    <tr class="table-active">
+                        <th>Net Recieved</th>
+                        <th>{{ sale.net_recieved }} {{ sale.currency }}</th>
+                    </tr>
+                    <tr class="table-active">
+                        <th>Balance Amount</th>
+                        <th>{{ sale.balance_amount }} {{ sale.currency }}</th>
+                    </tr>
+                </tfoot>
+            </table>
+            
+            <div class="mt-4">
+                <a href="{% url 'sales:list' %}" class="btn btn-secondary">Back to List</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">
+                <i class="fas fa-project-diagram"></i> {{ project.name }}
+                <small class="text-muted">{{ project.code }}</small>
+            </h4>
+            <div>
+                <a href="{% url 'projects:update' project.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'projects:list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Project Information</h5>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th width="30%">Client</th>
+                            <td>
+                                <a href="{% url 'clients:detail' project.client.pk %}">
+                                    {{ project.client.name }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Type</th>
+                            <td>{{ project.get_project_type_display }}</td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                <span class="badge bg-{% if project.status == 'COMPLETED' %}success{% elif project.status == 'ACTIVE' %}primary{% else %}warning{% endif %}">
+                                    {{ project.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Lead</th>
+                            <td>{{ project.client.contact_person }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h5>Timeline</h5>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th width="30%">Start Date</th>
+                            <td>{{ project.starting|date:"Y-m-d" }}</td>
+                        </tr>
+                        <tr>
+                            <th>End Date</th>
+                            <td>{{ project.ending|date:"Y-m-d" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Duration</th>
+                            <td>{{ project.duration }} days</td>
+                        </tr>
+                        <tr>
+                            <th>Completion</th>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: {{ project.progress }}%" 
+                                         aria-valuenow="{{ project.progress }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ project.progress }}%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>Financial Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>Budget</th>
+                                    <td class="text-end">{{ project.budget }}৳</td>
+                                </tr>
+                                <tr>
+                                    <th>Spent</th>
+                                    <td class="text-end">{{ project.spent_amount }}৳</td>
+                                </tr>
+                                <tr>
+                                    <th>Remaining</th>
+                                    <td class="text-end">{{ project.remaining_budget }}৳</td>
+                                </tr>
+                                <tr>
+                                    <th>Contract Amount</th>
+                                    <td class="text-end">{{ project.contract_amount }}৳</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>Team Members</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if project.team_members.all %}
+                            <ul class="list-group list-group-flush">
+                                {% for member in project.team_members.all %}
+                                <li class="list-group-item">
+                                    <a href="{% url 'employees:detail' member.pk %}">
+                                        {{ member.get_full_name }}
+                                    </a>
+                                    <span class="badge bg-secondary float-end">
+                                        {{ member.designation }}
+                                    </span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="text-muted">No team members assigned</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5>Project Description</h5>
+                </div>
+                <div class="card-body">
+                    {% if project.description %}
+                        {{ project.description|linebreaks }}
+                    {% else %}
+                        <p class="text-muted">No description provided</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

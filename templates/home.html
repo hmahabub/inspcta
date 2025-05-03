@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="jumbotron mt-4">
+        <h1 class="display-4">Welcome to Inspecta ERP</h1>
+        <p class="lead">Comprehensive Enterprise Resource Planning Solution</p>
+        <hr class="my-4">
+
+            {% if user.is_authenticated %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Recent Activities</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            {% for activity in activity_logs %}
+                            <li class="list-group-item">
+                                {{ activity }} 
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item">No recent activities</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Quick Stats({{year}})</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-4 border">
+                                <h3>{{ client_count }}</h3>
+                                <p>Clients</p>
+                            </div>
+                            <div class="col-4 border">
+                                <h3>{{ employee_count }}</h3>
+                                <p>Employees</p>
+                            </div>
+                            <div class="col-4 border">
+                                <h3>{{ project_count }}</h3>
+                                <p>Projects</p>
+                            </div>
+                        </div>
+
+                        <div class="row text-center">
+                            <div class="col-4 border">
+                                <h3>{{ total_cost|floatformat:0  }}</h3>
+                                <p>Total Expense</p>
+                            </div>
+                            <div class="col-4 border">
+                                <h3>{{ total_sales|floatformat:0  }}</h3>
+                                <p>Total Sales</p>
+                            </div>
+                            <div class="col-4 border">
+                                <h3>{{ total_recieved|floatformat:0  }}</h3>
+                                <p>Total Collection</p>
+                            </div>
+                        </div>
+
+                        <div class="row text-center">
+                            <div class="col-4 border">
+                                <h3>{{ profit|floatformat:0  }}</h3>
+                                <p>Profit</p>
+                            </div>
+                            <div class="col-4 border">
+                                <h3>{{ net_profit|floatformat:0  }}</h3>
+                                <p>Net Profit</p>
+                            </div>  
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <hr>
+        
+        {% if user.is_authenticated %}
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-users"></i> Clients
+                            </h5>
+                            <p class="card-text">Manage client relationships and projects</p>
+                            <a href="{% url 'clients:list' %}" class="btn btn-primary">
+                                Go to Clients
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-user-tie"></i> Employees
+                            </h5>
+                            <p class="card-text">Manage your workforce</p>
+                            <a href="{% url 'employees:list' %}" class="btn btn-primary">
+                                Go to Employees
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-project-diagram"></i> Projects
+                            </h5>
+                            <p class="card-text">Track all ongoing projects</p>
+                            <a href="{% url 'projects:list' %}" class="btn btn-primary">
+                                Go to Projects
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-money-bill-wave"></i> Expenditure
+                            </h5>
+                            <p class="card-text">Track all ongoing expense</p>
+                            <a href="{% url 'expenditure:regular-list' %}" class="btn btn-primary">
+                                Go to Expenditure[Regular]
+                            </a><br><br>
+                            <a href="{% url 'expenditure:provision-list' %}" class="btn btn-secondary">
+                                Go to Expenditure[Provisionary]
+                            </a><br><br>
+                            <a href="{% url 'expenditure:operation-list' %}" class="btn btn-success">
+                                Go to Expenditure[Operational]
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-dollar-sign"></i> Sales & Invoice
+                            </h5>
+                            <p class="card-text">Track all ongoing projects</p>
+                            <a href="{% url 'sales:list' %}" class="btn btn-primary">
+                                Go to Sales
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-ship"></i> Vessels
+                            </h5>
+                            <p class="card-text">Track all ongoing vessels</p>
+                            <a href="{% url 'vessels:list' %}" class="btn btn-primary">
+                                Go to Vessel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-book"></i> Books
+                            </h5>
+                            <p class="card-text">Track all Book Record</p>
+                            <a class="btn btn-primary" href="{% url 'books:bankbook_list' %}">Bank Book</a>&nbsp;
+                            <a class="btn btn-secondary" href="{% url 'books:cashbook_list' %}">Cash Book</a><br><br>
+                            <a class="btn btn-success" href="{% url 'books:bankaccount_list' %}">Bank Account</a><br><br>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        {% else %}
+            <p>Please log in to access the system</p>
+            <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        {% endif %}
+    </div>
+    
+
+</div>
+{% endblock %}

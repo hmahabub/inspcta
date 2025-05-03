@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>{% if object %}Update{% else %}Create New{% endif %} Operation Expenditure</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Basic Information</h5>
+                        {{ form.project|as_crispy_field }}
+                        {{ form.date|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Related Entities</h5>
+                        {{ form.payment_method|as_crispy_field }}
+                        {{ form.receipt_number|as_crispy_field }}
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <h5>Fees</h5>
+                    <div class="col-md-6">
+                        
+                        {{ form.escort|as_crispy_field }}
+                        {{ form.mariner|as_crispy_field }}
+                        {{ form.equipment|as_crispy_field }}
+                        
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.speedboat|as_crispy_field }}
+                        {{ form.others|as_crispy_field }}
+                        <div>
+                            <label for="total">Total:</label>
+                            <input type="text" id="total" class="form-control" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% if object %}Update{% else %}Create{% endif %}
+                    </button>
+                    <a href="{% if object %}{% url 'expenditure:operation-detail' object.pk %}{% else %}{% url 'expenditure:operation-list' %}{% endif %}" 
+                       class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+            <!-- Include required JS files -->
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            {{ form.media }}
+        </div>
+    </div>
+</div>
+<script>
+    const escortInput = document.getElementById('id_escort');
+    const equipmentInput = document.getElementById('id_equipment');
+    const marinerInput = document.getElementById('id_mariner');
+    const speedboatInput = document.getElementById('id_speedboat');
+    const othersInput = document.getElementById('id_others');
+
+    const totalInput = document.getElementById('total');
+    
+    function updateTotal() {
+        const escort = parseFloat(escortInput.value) || 0;
+        const equipment = parseFloat(equipmentInput.value) || 0;
+        const mariner = parseFloat(marinerInput.value) || 0;
+        const speedboat = parseFloat(speedboatInput.value) || 0;
+        const others = parseFloat(othersInput.value) || 0;
+
+
+        totalInput.value = (escort + equipment + mariner + speedboat + others ).toFixed(2);
+    }
+
+    escortInput.addEventListener('input', updateTotal);
+    equipmentInput.addEventListener('input', updateTotal);
+    marinerInput.addEventListener('input', updateTotal);
+    speedboatInput.addEventListener('input', updateTotal);
+    othersInput.addEventListener('input', updateTotal);
+
+</script>
+{% endblock %}

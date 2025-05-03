@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>{% if object %}Update{% else %}Create New{% endif %} Project</h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.media }}
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Basic Information</h5>
+                        {{ form.project_number|as_crispy_field }}
+                        {{ form.client|as_crispy_field }}
+                        {{ form.vessel_name|as_crispy_field }}
+                        {{ form.status|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Status & Timeline</h5>
+                        {{ form.starting|as_crispy_field }}
+                        {{ form.ending|as_crispy_field }}
+                        {{ form.actual_end|as_crispy_field }}
+                    </div>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% if object %}Update{% else %}Create{% endif %}
+                    </button>
+                    <a href="{% if object %}{% url 'projects:detail' object.pk %}{% else %}{% url 'projects:list' %}{% endif %}" 
+                       class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

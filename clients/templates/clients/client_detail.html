@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="fas fa-user-tie"></i> Client Details</h4>
+            <div>
+                <a href="{% url 'clients:update' object.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'clients:list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Basic Information</h5>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th width="30%">Name</th>
+                            <td>{{ object.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Type</th>
+                            <td>{{ object.types }}</td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                <span class="badge bg-{% if object.is_active %}success{% else %}success{% endif %}">
+                                    {% if object.is_active %}Active{% else %}Active{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Tax ID</th>
+                            <td>{{ object.tax_id|default:"-" }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h5>Contact Information</h5>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th width="30%">Email</th>
+                            <td>{{ object.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>Phone</th>
+                            <td>{{ object.phone }}</td>
+                        </tr>
+                        <tr>
+                            <th>Address</th>
+                            <td>{{ object.address|linebreaks }}</td>
+                        </tr>
+                        <tr>
+                            <th>Website</th>
+                            <td>
+                                {% if object.website %}
+                                <a href="{{ object.website }}" target="_blank">{{ object.website }}</a>
+                                {% else %}-{% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5>Additional Information</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            {% if object.notes %}
+                                {{ object.notes|linebreaks }}
+                            {% else %}
+                                <p class="text-muted">No additional notes</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5>Projects ({{ object.projects.count }})</h5>
+                    {% if object.projects.all %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Project</th>
+                                    <th>Status</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for project in object.projects.all %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'projects:detail' project.pk %}">
+                                            {{ project.project_number }}
+                                        </a>
+                                    </td>
+                                    <td>{{ project.get_status_display }}</td>
+                                    <td>{{ project.starting|date:"Y-m-d" }}</td>
+                                    <td>{{ project.ending|date:"Y-m-d" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">No projects found for this client</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
