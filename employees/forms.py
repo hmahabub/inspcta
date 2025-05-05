@@ -8,7 +8,7 @@ class EmployeeCreateForm(forms.ModelForm):
         model = Employee
         fields = [
             'name', 'email',
-            'nid', 'department', 'designation', 'is_regular',
+            'nid', 'department', 'designation', 'is_regular', 'photo',
             'phone', 'address', 'marital_status',
             'bkash', 'bank_name', 'account_number',
             'emergency_contact_person', 'relation_with_the_person',
@@ -32,7 +32,7 @@ class EmployeeUpdateForm(forms.ModelForm):
         model = Employee
         fields = [
             'name', 'email',
-            'nid', 'department', 'designation', 'is_regular',
+            'nid', 'department', 'designation', 'is_regular', 'photo',
             'phone', 'address', 'marital_status',
             'bkash', 'bank_name', 'account_number',
             'emergency_contact_person', 'relation_with_the_person',

@@ -2,6 +2,7 @@
 from django.db import models
 from django.core.validators import RegexValidator, EmailValidator
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 class Employee(models.Model):
     """
@@ -83,6 +84,27 @@ class Employee(models.Model):
         _('Phone Number'),
         validators=[phone_regex],
         max_length=17,
+    )
+
+
+
+    def validate_image_size(value):
+        filesize = value.size
+        max_size = 1 * 1024 * 1024   # 1 mb in bytes
+        if filesize > max_size:
+            raise ValidationError(
+                _('The maximum file size that can be uploaded is 1 mb'),
+                params={'value': value},
+            )
+
+    # Additional Fields
+    photo = models.ImageField(
+        _('Employee Photo'),
+        upload_to='employee_photos/',
+        blank=True,
+        null=True,
+        validators=[validate_image_size],
+        help_text=_('Maximum file size allowed is 1 mb')
     )
     
     address = models.TextField(

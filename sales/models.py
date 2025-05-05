@@ -74,7 +74,7 @@ class Sale(models.Model):
             diff=Func(F('year') - year, function='ABS')
         ).order_by('diff').first()
 
-        return closest.bdt_equivalent if closest else None
+        return closest.bdt_equivalent if closest else 1
         
 
 

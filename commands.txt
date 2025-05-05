@@ -18,3 +18,5 @@ python manage.py migrate_operational_expenditure
 python manage.py migrate_sales
 python manage.py migrate_lv
 python manage.py migrate_mv
+
+python manage.py delete_null_sales_task

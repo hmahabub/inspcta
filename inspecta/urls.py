@@ -22,6 +22,8 @@ urlpatterns = [
     path('vessels/', include('vessel.urls', namespace='vessels')),
     path('books/', include('books.urls', namespace='books')),
     path('dashboard/', include('dashboard.urls', namespace='dashboard')),
+    path('activity_log/', include('activity_log.urls', namespace='activity_log')),
+
     
     # Authentication URLs
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), 
