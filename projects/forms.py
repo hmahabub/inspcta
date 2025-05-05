@@ -17,7 +17,6 @@ class ProjectCreateForm(forms.ModelForm):
             
         ]
         widgets = {
-            'project_number': forms.TextInput(attrs={'readonly': 'readonly'}),
             'client': forms.Select(attrs={'class': 'form-select'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
         }
@@ -42,7 +41,6 @@ class ProjectCreateForm(forms.ModelForm):
             count = Project.objects.filter(project_number__startswith=year_prefix).count() + 1
             next_code = f"{year_prefix}{count:04d}"
             self.fields['project_number'].initial = next_code
-            self.fields['project_number'].disabled = True
 
 
 class ProjectUpdateForm(forms.ModelForm):
@@ -54,7 +52,6 @@ class ProjectUpdateForm(forms.ModelForm):
             
         ]
         widgets = {
-            'project_number': forms.TextInput(attrs={'readonly': 'readonly'}),
             'client': ModelSelect2Widget(
                 model=Client,
                 search_fields=['name__icontains']

@@ -1,6 +1,6 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.db.models import Q
 from .models import Client
 from .forms import ClientForm, ClientUpdateForm
@@ -37,28 +37,32 @@ class ClientListView(SuperuserRequiredMixin, ListView):
             
         return queryset.order_by('name')
 
-class ClientDetailView(SuperuserRequiredMixin, DetailView):
+class ClientDetailView(LoginRequiredMixin, DetailView):
     model = Client
     template_name = 'clients/client_detail.html'
     context_object_name = 'object'
 
-class ClientCreateView(PermissionRequiredMixin,SuperuserRequiredMixin, CreateView):
+class ClientCreateView(PermissionRequiredMixin, CreateView):
     model = Client
     form_class = ClientForm
     template_name = 'clients/client_form.html'
-    success_url = reverse_lazy('clients:list')
     permission_required = 'clients.add_client'
+
+    def get_success_url(self):
+        return reverse_lazy('clients:detail', kwargs={'pk': self.object.pk})
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
 
-class ClientUpdateView(PermissionRequiredMixin,SuperuserRequiredMixin, UpdateView):
+class ClientUpdateView(PermissionRequiredMixin, UpdateView):
     model = Client
     form_class = ClientUpdateForm
     template_name = 'clients/client_form.html'
-    success_url = reverse_lazy('clients:list')
     permission_required = 'clients.change_client'
+
+    def get_success_url(self):
+        return reverse_lazy('clients:detail', kwargs={'pk': self.object.pk})
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

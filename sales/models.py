@@ -11,7 +11,7 @@ class Sale(models.Model):
     CURRENCY_CHOICES = [
         ('USD', 'US Dollar'),
         ('EUR', 'Euro'),
-        ('TK.', 'Bangladeshi Taka'),
+        ('BDT', 'Bangladeshi Taka'),
     ]
     project = models.ForeignKey(
         Project,
@@ -39,7 +39,7 @@ class Sale(models.Model):
     date_of_ins = models.CharField(max_length=80,blank=True,null=True)
     plc_of_ins = models.CharField(max_length=80,blank=True,null=True)
 
-    recieved_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    recieved_amount = models.DecimalField(max_digits=10, decimal_places=2,default=0, validators=[MinValueValidator(0)])
     
     @property
     def total_amount(self):
@@ -68,10 +68,10 @@ class Sale(models.Model):
         exact = records.filter(year=year).first()
         if exact:
             return exact.bdt_equivalent
-
+        from django.db.models import F, Func
         # Annotate absolute difference and order by it
         closest = records.annotate(
-            diff=Abs(F('year') - year)
+            diff=Func(F('year') - year, function='ABS')
         ).order_by('diff').first()
 
         return closest.bdt_equivalent if closest else None

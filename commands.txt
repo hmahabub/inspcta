@@ -1,7 +1,17 @@
+python manage.py make_super_user
 python manage.py migrate_employees
 python manage.py migrate_employees_casual
 python manage.py migrate_clients
 python manage.py migrate_projects
+
+download and add project 25IBL0439 to last
+add 165 no client to client log
+add 6111 project to project
+add 6111 project to project log
+
+
+
+update expenditure_regular.json
 python manage.py migrate_regular_expenditure
 python manage.py migrate_casual_expenditure
 python manage.py migrate_operational_expenditure

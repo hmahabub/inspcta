@@ -50,7 +50,11 @@
                     <ul class="navbar-nav me-auto">
                         {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'clients:list' %}">
+                             {% if user.is_superuser %}
+                            <a href="{% url 'clients:list' %}" class="nav-link">
+                            {%else%}
+                            <a href="{% url 'clients:create' %}" class="nav-link">
+                            {%endif%}
                                 <i class="fas fa-users"></i> Clients
                             </a>
                         </li>
@@ -70,13 +74,17 @@
                           </a>
                           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="{% url 'expenditures:regular-list' %}">Regular</a></li>
-                            <li><a class="dropdown-item" href="{% url 'expenditures:provision-list' %}">Provisionary</a></li>
+                            <li><a class="dropdown-item" href="{% url 'expenditures:provision-list' %}">Casual</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{% url 'expenditures:operation-list' %}">Operational</a></li>
                           </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'sales:list' %}">
+                             {% if user.is_superuser %}
+                            <a href="{% url 'sales:list' %}" class="nav-link">
+                            {%else%}
+                            <a href="{% url 'sales:create' %}" class="nav-link">
+                            {%endif%}
                                 <i class="fas fa-dollar-sign"></i> Sales
                             </a>
                         </li>

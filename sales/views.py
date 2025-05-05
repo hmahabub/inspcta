@@ -33,13 +33,14 @@ class SaleListView(LoginRequiredMixin,SuperuserRequiredMixin, ListView):
         return queryset
 
 
-class SaleCreateView(PermissionRequiredMixin,SuperuserRequiredMixin, CreateView):
+class SaleCreateView(PermissionRequiredMixin, CreateView):
     model = Sale
     form_class = SaleForm
     template_name = 'sales/sale_form.html'
-    success_url = reverse_lazy('sales:list')
     permission_required  ='sales.add_sale'
     
+    def get_success_url(self):
+        return reverse_lazy('sales:detail', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -61,14 +62,14 @@ class SaleCreateView(PermissionRequiredMixin,SuperuserRequiredMixin, CreateView)
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
-class SaleUpdateView(PermissionRequiredMixin,SuperuserRequiredMixin, UpdateView):
+class SaleUpdateView(PermissionRequiredMixin, UpdateView):
     model = Sale
     form_class = SaleForm
     template_name = 'sales/sale_form.html'
     permission_required  ='sales.change_sale'
 
     def get_success_url(self):
-        return reverse_lazy('sales:list')
+        return reverse_lazy('sales:detail', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -91,11 +92,11 @@ class SaleUpdateView(PermissionRequiredMixin,SuperuserRequiredMixin, UpdateView)
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
-class SaleDetailView(LoginRequiredMixin,SuperuserRequiredMixin, DetailView):
+class SaleDetailView(LoginRequiredMixin, DetailView):
     model = Sale
     template_name = 'sales/sale_detail.html'
 
-class SaleInvoiceView(LoginRequiredMixin,SuperuserRequiredMixin, DetailView):
+class SaleInvoiceView(LoginRequiredMixin, DetailView):
     model = Sale
     template_name = 'sales/sale_invoice.html'
     context_object_name = 'info'

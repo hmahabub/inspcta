@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Provisionary Expenditures for {{ employee.name }}</h2>
+<h2>Casual Expenditures for {{ employee.name }}</h2>
 <div class="card-body">
     <div class="row">
         <div class="col-md-6">
@@ -93,7 +93,7 @@
         <div class="col-md-4 text-right">
             <a href="{% url 'expenditure:provision-create' %}?month={{ selected_month }}&year={{ selected_year }}" 
                class="btn btn-success">
-                Add New Expenditure [Provision]
+                Add New Expenditure [Casual]
             </a>
         </div>
     </div>

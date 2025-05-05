@@ -90,7 +90,11 @@
                                 <i class="fas fa-users"></i> Clients
                             </h5>
                             <p class="card-text">Manage client relationships and projects</p>
+                            {% if user.is_superuser %}
                             <a href="{% url 'clients:list' %}" class="btn btn-primary">
+                                {%else%}
+                                <a href="{% url 'clients:create' %}" class="btn btn-primary">
+                                {%endif%}
                                 Go to Clients
                             </a>
                         </div>
@@ -136,7 +140,7 @@
                                 Go to Expenditure[Regular]
                             </a><br><br>
                             <a href="{% url 'expenditure:provision-list' %}" class="btn btn-secondary">
-                                Go to Expenditure[Provisionary]
+                                Go to Expenditure[Casual]
                             </a><br><br>
                             <a href="{% url 'expenditure:operation-list' %}" class="btn btn-success">
                                 Go to Expenditure[Operational]
