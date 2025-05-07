@@ -73,8 +73,8 @@ class ProjectUpdateView(PermissionRequiredMixin, UpdateView):
     success_url = reverse_lazy('projects:list')
     permission_required = 'projects.change_project'
 
-class ProjectDeleteView(PermissionRequiredMixin, DeleteView):
-    model = Project
-    template_name = 'projects/project_confirm_delete.html'
-    success_url = reverse_lazy('projects:list')
-    permission_required = 'projects.delete_project'
+# class ProjectDeleteView(PermissionRequiredMixin, DeleteView):
+#     model = Project
+#     template_name = 'projects/project_confirm_delete.html'
+#     success_url = reverse_lazy('projects:list')
+#     permission_required = 'projects.delete_project'

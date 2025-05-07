@@ -387,7 +387,7 @@ class ProvisionaryExpenditureCreateView(PermissionRequiredMixin, CreateView):
     form_class = ProvisionaryExpenditureCreateForm
     template_name = 'provision_expenditure/expenditure_form.html'
     success_url = reverse_lazy('expenditures:provision-list')
-    permission_required = 'expenditure.add_provisionexpenditure'  # all lowercase
+    permission_required = 'expenditure.add_provisionaryexpenditure'  # all lowercase
     raise_exception = True
 
     def form_invalid(self, form):
@@ -400,7 +400,7 @@ class ProvisionaryExpenditureUpdateView(PermissionRequiredMixin, UpdateView):
     form_class = ProvisionaryExpenditureUpdateForm
     template_name = 'provision_expenditure/expenditure_form.html'
     success_url = reverse_lazy('expenditures:provision-list')
-    permission_required = 'expenditure.change_provisionexpenditure'
+    permission_required = 'expenditure.change_provisionaryexpenditure'
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -503,7 +503,7 @@ class OperationalExpenditureCreateView(PermissionRequiredMixin, CreateView):
     form_class = OperationalExpenditureCreateForm
     template_name = 'operation_expenditure/expenditure_form.html'
     success_url = reverse_lazy('expenditures:operation-list')
-    permission_required = 'expenditure.add_operationexpenditure'  # all lowercase
+    permission_required = 'expenditure.add_operationalexpenditure'  # all lowercase
     raise_exception = True
 
     def form_invalid(self, form):
