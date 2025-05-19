@@ -174,7 +174,7 @@ class Employee(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.name} ({self.designation})"
+        return f"{self.name} (NID:{self.nid})"
     
     @property
     def employment_status(self):
