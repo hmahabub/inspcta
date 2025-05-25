@@ -63,7 +63,9 @@
                                 <strong>{{ project.project_number }}</strong><br>
                                 <small class="text-muted">{{ project.project_number }}</small>
                             </td>
-                            <td>{{ project.client.name }}</td>
+                            <td>{{ project.client.name }}<br>
+                                <small class="text-muted">{{ project.vessel_name }}</small>
+                            </td>
                             <td>{{ project.starting|date:"Y-m-d" }}</td>
                             <td>{{ project.ending|date:"Y-m-d" }}</td>
                             <td>
