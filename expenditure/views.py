@@ -432,7 +432,6 @@ class OperationalExpenditureListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         search_query = self.request.GET.get('q')
 
-        
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
 
@@ -455,7 +454,7 @@ class OperationalExpenditureListView(LoginRequiredMixin, ListView):
             )
 
         if search_query:
-            queryset = queryset.filter(
+            queryset = OperationalExpenditure.objects.filter(
                 Q(project__project_number__icontains=search_query) |
                 Q(project__client__name__icontains=search_query)
                 )
