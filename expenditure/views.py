@@ -430,6 +430,9 @@ class OperationalExpenditureListView(LoginRequiredMixin, ListView):
     (9, 'September'), (10, 'October'), (11, 'November'), (12, 'December') ]
 
     def get_queryset(self):
+        search_query = self.request.GET.get('q')
+
+        
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
 
@@ -450,6 +453,12 @@ class OperationalExpenditureListView(LoginRequiredMixin, ListView):
                 date__gte=start_date,   # Greater than or equal to start_date
                 date__lte=end_date      # Less than or equal to end_date
             )
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(project__project_number__icontains=search_query) |
+                Q(project__client__name__icontains=search_query)
+                )
 
         self.starting = start_date.date()
         self.ending = end_date.date()
