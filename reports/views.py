@@ -20,7 +20,6 @@ class ProjectFinancialReportView(LoginRequiredMixin, ListView):
     model = Project
     template_name = 'reports/project_financial_report.html'
     context_object_name = 'object_list'
-    paginate_by = 15
     ordering = ['-created_at']
 
     def get_queryset(self):
