@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid mt-4">
+<div id="out">
+    <h3 class="mb-3 text-center">Project Financial Report</h3>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <label>Year</label>
+            <input type="number" name="year" class="form-control" value="{{ year }}">
+        </div>
+        <div class="col-md-3 align-self-end">
+            <button type="submit" class="btn btn-primary w-100">
+                Filter
+            </button>
+        </div>
+    </form>
+    <div class="col-md-2">
+        <button onclick="make()" class="btn btn-primary w-100"><i class="fas fa-file-pdf"></i> Print</button>
+    </div>
+    <br>
+</div>
+
+<div id="in">
+    <div class="print-header text-center mb-2">
+        <h2 class="mb-1">Project Financial Report</h2>
+        <p class="mb-0"><strong>Year: {{ year }}</strong></p>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Project</th>
+                    <th>Regular Cost</th>
+                    <th>Provision Cost</th>
+                    <th>Operational Cost</th>
+                    <th>Total Cost</th>
+                    <th>Sales Amount</th>
+                    <th>Profit / Loss</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in report %}
+                <tr>
+                    <td class="project-name">{{ row.project }}</td>
+                    <td class="text-end">
+                        {{ row.regular_cost|floatformat:2}}
+                    </td>
+                    <td class="text-end">
+                        {{ row.provision_cost|floatformat:2}}
+                    </td>
+                    <td class="text-end">
+                        {{ row.operational_cost|floatformat:2}}
+                    </td>
+                    <td class="text-end fw-bold">
+                        {{ row.total_cost|floatformat:2}}
+                    </td>
+                    <td class="text-end text-primary">
+                        {{ row.sales_amount|floatformat:2}}
+                    </td>
+                    <td class="text-end fw-bold 
+                        {% if row.profit < 0 %}text-danger{% else %}text-success{% endif %}">
+                        {{ row.profit|floatformat:2}}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">
+                        No data available
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot class="table-secondary fw-bold">
+                <tr>
+                    <td>Total</td>
+                    <td class="text-end">{{ totals.regular|floatformat:2 }}</td>
+                    <td class="text-end">{{ totals.provision|floatformat:2 }}</td>
+                    <td class="text-end">{{ totals.operational|floatformat:2 }}</td>
+                    <td class="text-end">{{ totals.cost|floatformat:2 }}</td>
+                    <td class="text-end">{{ totals.sales|floatformat:2 }}</td>
+                    <td class="text-end">{{ totals.profit|floatformat:2 }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+</div>
+
+<script type="text/javascript">
+  function make(){
+    document.getElementById("out").style.display = "none";
+    var baseElement = document.getElementById("base");
+    if(baseElement) {
+        baseElement.style.display = "none";
+    }
+    
+    setTimeout(function() {
+        window.print();
+        // Restore after printing
+        setTimeout(function() {
+            document.getElementById("out").style.display = "block";
+            if(baseElement) {
+                baseElement.style.display = "block";
+            }
+        }, 100);
+    }, 100);
+  }
+</script> 
+
+<style type="text/css">
+    /* Screen styles */
+    .print-header {
+        display: none;
+    }
+    
+    /* Print styles */
+    @media print {
+        /* Reset page margins and background */
+        @page {
+            size: A4 landscape;
+            margin: 0.5cm;
+        }
+        
+        body {
+            background-color: white !important;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Hide everything except the report */
+        body * {
+            visibility: hidden;
+        }
+        
+        #in, #in * {
+            visibility: visible;
+        }
+        
+        #in {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            display: block !important;
+        }
+        
+        /* Optimize print header */
+        .print-header {
+            display: block !important;
+        }
+        
+        .print-header h2 {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+        
+        .print-header p {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        /* Compact table styling - Black and White for ink saving */
+        .table {
+            font-size: 9px !important;
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+        
+        .table th {
+            padding: 4px 6px !important;
+            font-size: 9px !important;
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid #000000 !important;
+            font-weight: bold !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        .table td {
+            padding: 3px 6px !important;
+            font-size: 9px !important;
+            line-height: 1.2;
+            border: 1px solid #000000 !important;
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+        
+        .table tbody tr:nth-child(even) {
+            background-color: #ffffff !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        .table tbody tr:nth-child(odd) {
+            background-color: #ffffff !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        .project-name {
+            font-size: 8px !important;
+            max-width: 150px;
+            word-wrap: break-word;
+        }
+        
+        /* Footer styling - Black and White */
+        .table tfoot {
+            display: table-row-group;
+            page-break-inside: avoid;
+        }
+        
+        .table tfoot td {
+            background-color: #ffffff !important;
+            font-weight: bold !important;
+            padding: 5px 6px !important;
+            border: 2px solid #000000 !important;
+            color: #000000 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        /* Remove all colors - use black text only to save ink */
+        .text-danger,
+        .text-success,
+        .text-primary {
+            color: #000000 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        /* Prevent page breaks inside rows */
+        tr {
+            page-break-inside: avoid;
+        }
+        
+        /* Ensure table header repeats on each page */
+        thead {
+            display: table-header-group;
+        }
+        
+        /* Remove extra spacing */
+        .container-fluid {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        
+        .table-responsive {
+            overflow: visible !important;
+        }
+    }
+</style>  
+{% endblock %}
