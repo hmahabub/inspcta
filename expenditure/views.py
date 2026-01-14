@@ -322,8 +322,8 @@ class ProvisionaryExpenditurePerMonthView(LoginRequiredMixin, ListView):
             total += record.total_cost
             grouped[emp_id]['paid_in_advance'] += record.paid_in_advance
             total_paid_in_advance += record.paid_in_advance
-            grouped[emp_id]['net_payable'] = grouped[emp_id]['total_cost'] - grouped[emp_id]['paid_in_advance']
-            total_net_payable += grouped[emp_id]['total_cost'] - grouped[emp_id]['paid_in_advance']
+            grouped[emp_id]['net_payable'] += record.total_cost - record.paid_in_advance
+            total_net_payable += record.total_cost - record.paid_in_advance
 
         
 
