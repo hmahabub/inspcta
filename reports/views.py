@@ -119,9 +119,18 @@ class ProjectFinancialReportView(LoginRequiredMixin, ListView):
             # ---------------------------
             # Sales
             # ---------------------------
-            sales_amount = project.sales_entry.aggregate(
-                total=Coalesce(Sum('recieved_amount'), Decimal('0.00'))
-            )['total']
+            # sales_amount = project.sales_entry.aggregate(
+            #     total=Coalesce(Sum('bdt_equivalent'), Decimal('0.00'))
+            # )['total']
+
+            sales = project.sales_entry.all()
+
+            sales_amount = Decimal('0.00')
+
+            for sale in sales:
+                # Convert received amount to BDT using your property
+                sales_amount += sale.recieved_amount * Decimal(str(sale.bdt_equivalent))
+
 
             total_cost = regular_cost + provision_cost + operational_cost
             profit = sales_amount - total_cost
