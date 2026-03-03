@@ -15,6 +15,7 @@ urlpatterns = [
     # App-specific URLs
     path('clients/', include('clients.urls', namespace='clients')),
     path('employees/', include('employees.urls', namespace='employees')),
+    path('mastermariners/', include('mastermariner.urls', namespace='mastermariners')),
     path('projects/', include('projects.urls', namespace='projects')),
     path('sales/', include('sales.urls', namespace='sales')),
     path('reports/', include('reports.urls', namespace='reports')),
