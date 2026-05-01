@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     'vessel',
     'books',
     'activity_log',
-    'mastermariner'
+    'mastermariner',
+
 
 ]
 

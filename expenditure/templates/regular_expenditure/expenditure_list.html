@@ -16,39 +16,33 @@
     <!-- Filter Form -->
     <div class="card mb-4">
         <div class="card-body">
-            <form method="get" class="row g-3">
+            <form method="get" class="row g-3 align-items-end">
                 <div class="col-md-3">
-                    <select name="type" class="form-select">
-                        <option value="">All Types</option>
-                        {% for type in expenditure_types %}
-                        <option value="{{ type.0 }}" {% if request.GET.type == type.0 %}selected{% endif %}>
-                            {{ type.1 }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select name="project" class="form-select">
-                        <option value="">All Projects</option>
-                        {% for project in projects %}
-                        <option value="{{ project.id }}" {% if request.GET.project == project.id|stringformat:"s" %}selected{% endif %}>
-                            {{ project.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-3">
+                    <label class="form-label text-muted small mb-1">Start Date</label>
                     <input type="date" name="start_date" class="form-control" 
                            value="{{ request.GET.start_date }}">
                 </div>
                 <div class="col-md-3">
-                    <div class="input-group">
-                        <input type="date" name="end_date" class="form-control" 
+                    <label class="form-label text-muted small mb-1">End Date</label>
+                    <input type="date" name="end_date" class="form-control" 
                                value="{{ request.GET.end_date }}">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-filter"></i>
-                        </button>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small mb-1">Employee</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <input type="text" name="employee" class="form-control"
+                               placeholder="Search employee..."
+                               value="{{ request.GET.employee }}">
                     </div>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    <a href="{% url 'expenditure:regular-list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
                 </div>
             </form>
             <br>

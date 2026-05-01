@@ -26,6 +26,9 @@ class RegularExpenditureListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
+        employee = self.request.GET.get('employee')
+
+
         if start_date and end_date:
             start_date = datetime.strptime(start_date, "%Y-%m-%d")
             end_date = datetime.strptime(end_date, "%Y-%m-%d")
@@ -43,6 +46,9 @@ class RegularExpenditureListView(LoginRequiredMixin, ListView):
                 date__gte=start_date,   # Greater than or equal to start_date
                 date__lte=end_date      # Less than or equal to end_date
             )
+
+        if employee:
+            queryset = queryset.filter(employee__name__icontains=employee)
 
         return queryset.order_by('-date')
 
@@ -77,7 +83,6 @@ class RegularExpenditurePerMonthView(LoginRequiredMixin, ListView):
         selected_month = int(self.request.GET.get('month', datetime.now().month))
         selected_year = int(self.request.GET.get('year', datetime.now().year))
 
-        print(type(selected_month))
 
         # Calculate the total cost per record
         cost_expr = ExpressionWrapper(
