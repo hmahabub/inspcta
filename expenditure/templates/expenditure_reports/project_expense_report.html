@@ -1,0 +1,242 @@
+<!-- templates/expenditure_reports/project_expense_report.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-chart-line"></i> Project Expense Report</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-secondary">
+                <i class="fas fa-print"></i> Print Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5><i class="fas fa-filter"></i> Filter Projects</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="q" class="form-control" 
+                           placeholder="Project number, client name or code..." 
+                           value="{{ search_query }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" name="start_date" class="form-control" 
+                           value="{{ start_date }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date" name="end_date" class="form-control" 
+                           value="{{ end_date }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Apply Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Total Projects</h6>
+                    <h3 class="mb-0">{{ total_projects }}</h3>
+                    <small>All projects</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Projects with Expenses</h6>
+                    <h3 class="mb-0">{{ total_projects_with_expenses }}</h3>
+                    <small>Have incurred costs</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Total Expenses</h6>
+                    <h3 class="mb-0">{{ grand_total_expense|floatformat:2 }} ৳</h3>
+                    <small>All projects combined</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Net Payable</h6>
+                    <h3 class="mb-0">{{ grand_net_payable|floatformat:2 }} ৳</h3>
+                    <small>After advances</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="fas fa-list"></i> Project Expense Summary</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>SL</th>
+                            <th>Project Number</th>
+                            <th>Client</th>
+                            <th>Vessel</th>
+                            <th>Project Period</th>
+                            <th>Regular Expense</th>
+                            <th>Provisionary Expense</th>
+                            <th>Operational Expense</th>
+                            <th>Total Expense</th>
+                            <th>Advance Paid</th>
+                            <th>Net Payable</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in projects_with_expenses %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <strong>{{ item.project.project_number }}</strong>
+                            </td>
+                            <td>
+                                {{ item.project.client.name }}
+                                <br>
+                                <small class="text-muted">{{ item.project.client.client_code }}</small>
+                            </td>
+                            <td>{{ item.project.vessel_name|default:"-" }}</td>
+                            <td>
+                                {{ item.project.starting|date:"d-m-Y"|default:"-" }}
+                                <br>
+                                <small>to {{ item.project.ending|date:"d-m-Y"|default:"Ongoing" }}</small>
+                            </td>
+                            <td class="text-end">
+                                {{ item.expenses.regular_total|floatformat:2 }} ৳
+                                <br>
+                                <small class="text-muted">{{ item.expenses.regular_count }} entries</small>
+                            </td>
+                            <td class="text-end">
+                                {{ item.expenses.provision_total|floatformat:2 }} ৳
+                                <br>
+                                <small class="text-muted">{{ item.expenses.provision_count }} entries</small>
+                            </td>
+                            <td class="text-end">
+                                {{ item.expenses.operation_total|floatformat:2 }} ৳
+                                <br>
+                                <small class="text-muted">{{ item.expenses.operation_count }} entries</small>
+                            </td>
+                            <td class="text-end text-primary fw-bold">
+                                {{ item.expenses.total_expense|floatformat:2 }} ৳
+                            </td>
+                            <td class="text-end text-danger">
+                                {{ item.expenses.total_advance|floatformat:2 }} ৳
+                            </td>
+                            <td class="text-end text-success fw-bold">
+                                {{ item.expenses.net_payable|floatformat:2 }} ৳
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'expenditures:project-expense-detail' item.project.pk %}?{% if start_date %}start_date={{ start_date }}&{% endif %}{% if end_date %}end_date={{ end_date }}{% endif %}" 
+                                   class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> Details
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="12" class="text-center py-5">
+                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                <p class="mb-0">No projects found matching your criteria.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-active">
+                        <tr>
+                            <th colspan="8" class="text-end">GRAND TOTAL:</th>
+                            <th class="text-end">{{ grand_total_expense|floatformat:2 }} ৳</th>
+                            <th class="text-end">{{ grand_total_advance|floatformat:2 }} ৳</th>
+                            <th class="text-end">{{ grand_net_payable|floatformat:2 }} ৳</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            &laquo;&laquo;
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            &laquo;
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            &raquo;
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            &raquo;&raquo;
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .btn, .card-header .btn, .pagination, form, .d-flex .btn {
+            display: none !important;
+        }
+        .card {
+            border: none !important;
+        }
+        .table {
+            font-size: 10pt;
+        }
+    }
+</style>
+{% endblock %}

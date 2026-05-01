@@ -1,0 +1,285 @@
+<!-- templates/expenditure_reports/project_expense_detail.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-file-invoice-dollar"></i> Project Expense Details</h2>
+            <p class="text-muted mb-0">
+                <strong>Project:</strong> {{ project.project_number }} - {{ project.project_name|default:project.client.name }}
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'expenditures:project-expense-report' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Report
+            </a>
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fas fa-print"></i> Print
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5><i class="fas fa-filter"></i> Filter Expenses</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Expense Type</label>
+                    <select name="expense_type" class="form-control">
+                        <option value="">All Types</option>
+                        <option value="regular" {% if expense_type == 'regular' %}selected{% endif %}>Regular</option>
+                        <option value="provision" {% if expense_type == 'provision' %}selected{% endif %}>Provisionary</option>
+                        <option value="operation" {% if expense_type == 'operation' %}selected{% endif %}>Operational</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Apply Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Regular Expense</h6>
+                    <h3 class="mb-0">{{ totals.regular_total|floatformat:2 }} ৳</h3>
+                    <small>{{ totals.regular_count }} entries</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Provisionary Expense</h6>
+                    <h3 class="mb-0">{{ totals.provision_total|floatformat:2 }} ৳</h3>
+                    <small>{{ totals.provision_count }} entries</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Operational Expense</h6>
+                    <h3 class="mb-0">{{ totals.operation_total|floatformat:2 }} ৳</h3>
+                    <small>{{ totals.operation_count }} entries</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Net Payable</h6>
+                    <h3 class="mb-0">{{ totals.net_payable|floatformat:2 }} ৳</h3>
+                    <small>After advances</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Regular Expenditures -->
+    {% if regular_expenditures %}
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-user-clock"></i> Regular Employee Expenditures</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Employee</th>
+                            <th>OT Hours</th>
+                            <th>OT Amount</th>
+                            <th>Conveyance</th>
+                            <th>Boat Fee</th>
+                            <th>Fooding</th>
+                            <th>Hotel</th>
+                            <th>Night Allow.</th>
+                            <th>Others</th>
+                            <th>Total</th>
+                            <th>Advance</th>
+                            <th>Net Payable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exp in regular_expenditures %}
+                        <tr>
+                            <td>{{ exp.date|date:"d-m-Y" }}</td>
+                            <td>{{ exp.employee.name }}</td>
+                            <td>{{ exp.ot_hours }}</td>
+                            <td class="text-end">{{ exp.ot|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.conveyance|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.boat_fee|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.fooding_fee|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.hotel_fee|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.night_allownce|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.others|floatformat:2 }}</td>
+                            <td class="text-end fw-bold">{{ exp.total|floatformat:2 }}</td>
+                            <td class="text-end text-danger">{{ exp.paid_in_advance|floatformat:2 }}</td>
+                            <td class="text-end text-success fw-bold">{{ exp.net_payable|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-active">
+                        <tr>
+                            <th colspan="10" class="text-end">Total:</th>
+                            <th class="text-end">{{ totals.regular_total|floatformat:2 }} ৳</th>
+                            <th class="text-end"></th>
+                            <th class="text-end"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Provisionary Expenditures -->
+    {% if provision_expenditures %}
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-users"></i> Provisionary Employee Expenditures</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Employee</th>
+                            <th>Fixed Amt</th>
+                            <th>OT Hours</th>
+                            <th>OT Amount</th>
+                            <th>Conveyance</th>
+                            <th>Boat Fee</th>
+                            <th>Fooding</th>
+                            <th>Hotel</th>
+                            <th>Night Allow.</th>
+                            <th>Others</th>
+                            <th>Total</th>
+                            <th>Advance</th>
+                            <th>Net Payable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exp in provision_expenditures %}
+                        <tr>
+                            <td>{{ exp.date|date:"d-m-Y" }}</td>
+                            <td>{{ exp.employee.name }}</td>
+                            <td class="text-end">{{ exp.fixed_amount|floatformat:2 }}</td>
+                            <td>{{ exp.ot_hours }}</td>
+                            <td class="text-end">{{ exp.ot|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.conveyance|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.boat_fee|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.fooding_fee|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.hotel_fee|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.night_allownce|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.others|floatformat:2 }}</td>
+                            <td class="text-end fw-bold">{{ exp.total|floatformat:2 }}</td>
+                            <td class="text-end text-danger">{{ exp.paid_in_advance|floatformat:2 }}</td>
+                            <td class="text-end text-success fw-bold">{{ exp.net_payable|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-active">
+                        <tr>
+                            <th colspan="11" class="text-end">Total:</th>
+                            <th class="text-end">{{ totals.provision_total|floatformat:2 }} ৳</th>
+                            <th class="text-end"></th>
+                            <th class="text-end"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Operational Expenditures -->
+    {% if operation_expenditures %}
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-ship"></i> Operational Expenditures</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Master Mariner</th>
+                            <th>Escort</th>
+                            <th>Mariner</th>
+                            <th>Equipment</th>
+                            <th>Speedboat</th>
+                            <th>Others</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exp in operation_expenditures %}
+                        <tr>
+                            <td>{{ exp.date|date:"d-m-Y" }}</td>
+                            <td>{{ exp.master_mariner.name|default:"-" }}</td>
+                            <td class="text-end">{{ exp.escort|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.mariner|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.equipment|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.speedboat|floatformat:2 }}</td>
+                            <td class="text-end">{{ exp.others|floatformat:2 }}</td>
+                            <td class="text-end fw-bold">{{ exp.total|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-active">
+                        <tr>
+                            <th colspan="7" class="text-end">Total:</th>
+                            <th class="text-end">{{ totals.operation_total|floatformat:2 }} ৳</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not regular_expenditures and not provision_expenditures and not operation_expenditures %}
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle"></i> No expenditures found for this project with the selected filters.
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    @media print {
+        .btn, .card-header .btn, form, .d-flex .btn {
+            display: none !important;
+        }
+        .card {
+            border: 1px solid #ddd !important;
+            break-inside: avoid;
+        }
+        .table {
+            font-size: 9pt;
+        }
+    }
+</style>
+{% endblock %}

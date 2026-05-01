@@ -26,4 +26,8 @@ urlpatterns = [
     path('operational/create/', OperationalExpenditureCreateView.as_view(), name='operation-create'),
     path('operational/<int:pk>/update/', OperationalExpenditureUpdateView.as_view(), name='operation-update'),
     path('operational/<int:pk>/delete/', OperationalExpenditureDeleteView.as_view(), name='operation-delete'),
+
+    # NEW: Project Expense Report
+    path('project-expense-report/', ProjectExpenseReportView.as_view(), name='project-expense-report'),
+    path('project-expense-report/<int:pk>/', ProjectExpenseDetailView.as_view(), name='project-expense-detail'),
 ]

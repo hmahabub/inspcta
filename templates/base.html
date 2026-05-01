@@ -118,7 +118,13 @@
                             <i class="fas fa-book"></i> Reports
                           </a>
                           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="{% url 'reports:project_financial_report' %}">Project Financial Report</a></li></li>
+                            <li><a class="dropdown-item" href="{% url 'reports:project_financial_report' %}">Project Financial Report</a></li>
+                            <!-- Add to your navigation menu -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'expenditures:project-expense-report' %}">
+                                    <i class="fas fa-chart-line"></i> Project Expense Report
+                                </a>
+                            </li>
                           </ul>
                         </li>
                         {% endif %}

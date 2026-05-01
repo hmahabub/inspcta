@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from clients.models import Client
 from projects.models import Project
 from employees.models import Employee
+from mastermariner.models import MasterMariner
 from django.utils import timezone
 
 
@@ -120,6 +121,18 @@ class OperationalExpenditure(Expenditure):
 	equipment = models.IntegerField(default=0)
 	speedboat = models.IntegerField(default=0)
 	others = models.IntegerField(default=0)
+
+	# New field: Associate mariner cost with specific MasterMariner
+	master_mariner = models.ForeignKey(
+    	MasterMariner,
+        on_delete=models.SET_NULL,  # Keep record even if master mariner is deleted
+        null=True,
+        blank=True,
+        related_name='operational_expenditures',
+        verbose_name="Master Mariner",
+        help_text="Select the master mariner associated with this mariner cost"
+    )
+
 	@property
 	def total(self):
 		return self.escort + self.mariner + self.equipment + self.speedboat + self.others

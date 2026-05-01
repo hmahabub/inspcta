@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from .models import *
 from clients.models import Client
 from projects.models import Project
+from mastermariner.models import MasterMariner
 from django_select2.forms import ModelSelect2Widget
 from django.utils import timezone
 from datetime import timedelta
@@ -187,7 +188,7 @@ class OperationalExpenditureCreateForm(forms.ModelForm):
         fields = [
             'project','date', 'payment_method', 'receipt_number',
             'escort', 
-            'mariner', 'equipment','speedboat', 'others'
+            'mariner','master_mariner', 'equipment','speedboat', 'others'
             
         ]
         widgets = {
@@ -195,6 +196,13 @@ class OperationalExpenditureCreateForm(forms.ModelForm):
                 url='projects:relatedmodel-autocomplete',
                 attrs={
                     'data-placeholder': 'Search for a related item...',
+                    'data-minimum-input-length': 2,
+                },
+            ),
+            'master_mariner': autocomplete.ModelSelect2(
+                url='mastermariners:relatedmodel-autocomplete',
+                attrs={
+                    'data-placeholder': 'Search for a master mariner...',
                     'data-minimum-input-length': 2,
                 },
             ),
@@ -208,10 +216,28 @@ class OperationalExpenditureCreateForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         project = cleaned_data.get("project")
+        date = cleaned_data.get("date")
+        mariner = cleaned_data.get("mariner")
+        master_mariner = cleaned_data.get("master_mariner")
 
-        if self.instance.pk is None:  # only check on create, not update
-            if OperationalExpenditure.objects.filter(project=project).exists():
-                raise ValidationError("This project already has an operational cost entry")
+        if mariner and mariner > 0 and not master_mariner:
+            raise ValidationError({
+                'master_mariner': "Please select a master mariner when mariner cost is entered."
+            })
+
+        if self.instance.pk is None and project and date:  # only check on create, not update
+            month = date.month
+            year = date.year
+            
+            if OperationalExpenditure.objects.filter(
+                project=project,
+                date__month=month,
+                date__year=year
+            ).exists():
+                raise ValidationError(
+                    f"This project already has an operational cost entry for {date.strftime('%B %Y')}. "
+                    f"Only one operational cost entry is allowed per month."
+                )
         return cleaned_data
 
 
@@ -221,11 +247,18 @@ class OperationalExpenditureUpdateForm(forms.ModelForm):
         fields = [
             'project','date', 'payment_method', 'receipt_number',
             'escort', 
-            'mariner', 'equipment','speedboat', 'others'
+            'mariner', 'master_mariner','equipment','speedboat', 'others'
             
         ]
         widgets = {
             'project': forms.Select(attrs={'readonly': 'True'}),
+            'master_mariner': autocomplete.ModelSelect2(
+                url='mastermariners:relatedmodel-autocomplete',
+                attrs={
+                    'data-placeholder': 'Search for a master mariner...',
+                    'data-minimum-input-length': 2,
+                },
+            ),
             'payment_method': forms.Select(attrs={'class': 'form-control'}),
             'date': forms.DateInput(attrs={
                 'type': 'date',  # HTML5 date picker
@@ -236,8 +269,27 @@ class OperationalExpenditureUpdateForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         project = cleaned_data.get("project")
+        date = cleaned_data.get("date")
+        mariner = cleaned_data.get("mariner")
+        master_mariner = cleaned_data.get("master_mariner")
 
-        if self.instance.pk is None:  # only check on create, not update
-            if OperationalExpenditure.objects.filter(project=project).exclude(pk=self.instance.pk).exists():
-                raise ValidationError("This project already has an operational cost entry for the same date.")
+        # Validate that if mariner cost > 0, master_mariner must be selected
+        if mariner and mariner > 0 and not master_mariner:
+            raise ValidationError({
+                'master_mariner': "Please select a master mariner when mariner cost is entered."
+            })
+
+        if project and date:
+            month = date.month
+            year = date.year
+            
+            if OperationalExpenditure.objects.filter(
+                project=project,
+                date__month=month,
+                date__year=year
+            ).exclude(pk=self.instance.pk).exists():
+                raise ValidationError(
+                    f"This project already has an operational cost entry for {date.strftime('%B %Y')}. "
+                    f"Only one operational cost entry is allowed per month."
+                )
         return cleaned_data

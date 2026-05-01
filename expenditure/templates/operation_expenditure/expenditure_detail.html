@@ -1,111 +1,111 @@
-{% extends 'base.html' %}
+<!-- operation_expenditure/expenditure_detail.html -->
+{% extends "base.html" %}
 
 {% block content %}
-<h2>Expenditures for {{ project.project_number }}</h2>
-<div class="card-body">
-    <div class="row">
-        <div class="col-md-6">
-            <h5>Basic Information</h5>
-            <table class="table table-bordered">
-                <tr>
-                    <th width="30%">Client</th>
-                    <td>
-                        {{ project.client }}
-                    </td>
-                </tr>
-                <tr>
-                    <th>Vessel Name</th>
-                    <td>{{ project.vessel_name }}</td>
-                </tr>
-                <tr>
-                    <th>Start date</th>
-                    <td>{{ project.starting }}</td>
-                </tr>
-                <tr>
-                    <th>End date</th>
-                    <td>{{ project.ending }}</td>
-                </tr>
-            </table>
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3>Operational Expenditure Details</h3>
+            <div>
+                <a href="{% url 'expenditures:operation-update' expenditure.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'expenditures:operation-list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
         </div>
-        <div class="col-md-6">
-            <h5>Expenditure details</h5>
-            <table class="table table-bordered">
-                <tr>
-                    <th width="30%">Regular Cost</th>
-                    <td>
-                        {{ regular_total }}
-                    </td>
-                </tr>
-                <tr>
-                    <th>Prov. Cost</th>
-                    <td>
-                        {{ provision_total }}
-                    </td>
-                </tr>
-                <tr>
-                    <th>Operational Cost</th>
-                    <td>
-                        {{ operation_total }}
-                    </td>
-                </tr>
-                <tr>
-                    <th>Total</th>
-                    <td>
-                        {{ total_amount }}
-                    </td>
-                </tr>
-            </table>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Basic Information</h5>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Project:</th>
+                            <td>{{ expenditure.project.project_number }} - {{ expenditure.project.client }}</td>
+                        </tr>
+                        <tr>
+                            <th>Date:</th>
+                            <td>{{ expenditure.date|date:"d-m-Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Payment Method:</th>
+                            <td>{{ expenditure.get_payment_method_display }}</td>
+                        </tr>
+                        <tr>
+                            <th>Receipt Number:</th>
+                            <td>{{ expenditure.receipt_number|default:"-" }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h5>Expense Breakdown</h5>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Escort:</th>
+                            <td class="text-end">{{ expenditure.escort }} BDT</td>
+                        </tr>
+                        <tr>
+                            <th>Mariner:</th>
+                            <td class="text-end">
+                                {{ expenditure.mariner }} BDT
+                                {% if expenditure.mariner > 0 and expenditure.master_mariner %}
+                                    <br><small class="text-muted">Master Mariner: {{ expenditure.master_mariner.name }}</small>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Equipment:</th>
+                            <td class="text-end">{{ expenditure.equipment }} BDT</td>
+                        </tr>
+                        <tr>
+                            <th>Speedboat:</th>
+                            <td class="text-end">{{ expenditure.speedboat }} BDT</td>
+                        </tr>
+                        <tr>
+                            <th>Others:</th>
+                            <td class="text-end">{{ expenditure.others }} BDT</td>
+                        </tr>
+                        <tr class="table-active">
+                            <th><strong>Total:</strong></th>
+                            <td class="text-end"><strong>{{ expenditure.total }} BDT</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5>Project Summary</h5>
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Expenditure Type</th>
+                                <th class="text-end">Amount (BDT)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Regular Expenditure</td>
+                                <td class="text-end">{{ regular_total|default:"0" }}</td>
+                            </tr>
+                            <tr>
+                                <td>Provisionary Expenditure</td>
+                                <td class="text-end">{{ provision_total|default:"0" }}</td>
+                            </tr>
+                            <tr>
+                                <td>Operational Expenditure</td>
+                                <td class="text-end">{{ operation_total|default:"0" }}</td>
+                            </tr>
+                            <tr class="table-active">
+                                <td><strong>Total Project Expenditure</strong></td>
+                                <td class="text-end"><strong>{{ total_amount|default:"0" }} BDT</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-
-<!-- Print Header (only shows when printing) -->
-<div class="print-header" style="display: none;">
-    <h2>Monthly Expenditure Report</h2>
-    <p>Employee: {{ employee.name }}</p>
-    <p>Month: {{ selected_month|stringformat:"02d" }}/{{ selected_year }}</p>
-    <p>Printed on: {% now "Y-m-d" %}</p>
-    <hr>
-</div>
-
-<!-- Pagination -->
-{% if is_paginated %}
-<nav aria-label="Page navigation" class="no-print">
-    <!-- ... existing pagination code ... -->
-</nav>
-{% endif %}
-
-<style>
-    @media print {
-        body * {
-            visibility: hidden;
-        }
-        .print-header, .print-header * {
-            display: block !important;
-            visibility: visible;
-        }
-        .table-responsive, .table-responsive * {
-            visibility: visible;
-        }
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .table th, .table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
-        .table th {
-            background-color: #f2f2f2;
-        }
-        .no-print {
-            display: none !important;
-        }
-        @page {
-            size: portrait;
-            margin: 1cm;
-        }
-    }
-</style>
 {% endblock %}

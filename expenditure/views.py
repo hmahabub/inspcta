@@ -1,4 +1,4 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import Sum, Q, F, ExpressionWrapper, IntegerField
@@ -7,6 +7,8 @@ from .forms import *
 from django.shortcuts import get_object_or_404
 from datetime import datetime, date
 from collections import defaultdict
+from mastermariner.models import MasterMariner
+
 
 # Regular
 class RegularExpenditureListView(LoginRequiredMixin, ListView):
@@ -482,17 +484,12 @@ class OperationalExpenditureListView(LoginRequiredMixin, ListView):
         context['total_amount'] = sum(obj.total for obj in queryset)
         return context
 
-class OperationalExpenditureDetailView(LoginRequiredMixin, ListView):
+class OperationalExpenditureDetailView(LoginRequiredMixin, DetailView):  # Changed to DetailView
     model = OperationalExpenditure
     template_name = 'operation_expenditure/expenditure_detail.html'
-    context_object_name = 'expenditures'
-    paginate_by = 10
-
+    context_object_name = 'expenditure'
 
     def get_total_expenditure(self, project_id):
-        month = self.request.GET.get('pk')
-        year = self.request.GET.get('year')
-        
         regular = RegularExpenditure.objects.filter(project=project_id)
         provision = ProvisionaryExpenditure.objects.filter(project=project_id)
         operation = OperationalExpenditure.objects.filter(project=project_id)
@@ -500,14 +497,13 @@ class OperationalExpenditureDetailView(LoginRequiredMixin, ListView):
         regular_total = sum(obj.total for obj in regular)
         provision_total = sum(obj.total for obj in provision)
         operation_total = sum(obj.total for obj in operation)
-        total_amount  = regular_total + provision_total + operation_total
+        total_amount = regular_total + provision_total + operation_total
         return regular_total, provision_total, operation_total, total_amount
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        queryset = self.get_queryset()
-
-        project_id = OperationalExpenditure.objects.get(pk=self.kwargs.get('pk')).project.id
+        expenditure = self.get_object()
+        project_id = expenditure.project.id
         context['project'] = Project.objects.get(pk=project_id)
         context['regular_total'], context['provision_total'], context['operation_total'], context['total_amount'] = self.get_total_expenditure(project_id)
         return context
@@ -549,3 +545,291 @@ class OperationalExpenditureDeleteView(DeleteView):
         employee.is_active = False  # Soft delete instead of actual deletion
         employee.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+# NEW: Project Expense Report View - FIXED (no is_active field)
+class ProjectExpenseReportView(LoginRequiredMixin, ListView):
+    """
+    View to display all projects with their total expenses
+    """
+    model = Project
+    template_name = 'expenditure_reports/project_expense_report.html'
+    context_object_name = 'projects'
+    paginate_by = 20
+    
+    def get_queryset(self):
+        # Get all projects (no is_active filter since it doesn't exist)
+        queryset = Project.objects.all()
+        
+        # Filter by project number or client name
+        search_query = self.request.GET.get('q')
+        if search_query:
+            queryset = queryset.filter(
+                Q(project_number__icontains=search_query) |
+                Q(client__name__icontains=search_query) |
+                Q(client__client_code__icontains=search_query)
+            )
+        
+        # Filter by date range based on project dates
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        
+        self.start_date = start_date
+        self.end_date = end_date
+        
+        if start_date and end_date:
+            start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+            end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+            # Filter projects that are active during this period
+            queryset = queryset.filter(
+                Q(starting__lte=end_date) & 
+                (Q(ending__gte=start_date) | Q(ending__isnull=True))
+            )
+            self.filter_by_date = True
+            self.filter_start_date = start_date
+            self.filter_end_date = end_date
+        else:
+            self.filter_by_date = False
+            self.filter_start_date = None
+            self.filter_end_date = None
+        
+        return queryset.order_by('-starting')
+    
+    def get_project_expenses(self, project):
+        """Calculate all expenses for a project with optional date filtering"""
+        
+        # Base querysets
+        regular_qs = RegularExpenditure.objects.filter(project=project)
+        provision_qs = ProvisionaryExpenditure.objects.filter(project=project)
+        operation_qs = OperationalExpenditure.objects.filter(project=project)
+        
+        # Apply date filters if provided
+        if self.filter_by_date and self.filter_start_date and self.filter_end_date:
+            regular_qs = regular_qs.filter(date__gte=self.filter_start_date, date__lte=self.filter_end_date)
+            provision_qs = provision_qs.filter(date__gte=self.filter_start_date, date__lte=self.filter_end_date)
+            operation_qs = operation_qs.filter(date__gte=self.filter_start_date, date__lte=self.filter_end_date)
+        
+        # Calculate totals
+        regular_total = sum(obj.total for obj in regular_qs)
+        provision_total = sum(obj.total for obj in provision_qs)
+        operation_total = sum(obj.total for obj in operation_qs)
+        
+        # Calculate advances
+        regular_advance = sum(obj.paid_in_advance for obj in regular_qs)
+        provision_advance = sum(obj.paid_in_advance for obj in provision_qs)
+        
+        total_expense = regular_total + provision_total + operation_total
+        total_advance = regular_advance + provision_advance
+        net_payable = total_expense - total_advance
+        
+        # Get count of each type
+        regular_count = regular_qs.count()
+        provision_count = provision_qs.count()
+        operation_count = operation_qs.count()
+        
+        return {
+            'regular_total': regular_total,
+            'provision_total': provision_total,
+            'operation_total': operation_total,
+            'total_expense': total_expense,
+            'total_advance': total_advance,
+            'net_payable': net_payable,
+            'regular_count': regular_count,
+            'provision_count': provision_count,
+            'operation_count': operation_count,
+        }
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Calculate expenses for each project
+        projects_with_expenses = []
+        grand_total_expense = 0
+        grand_total_advance = 0
+        grand_net_payable = 0
+        
+        for project in context['projects']:
+            expense_data = self.get_project_expenses(project)
+            projects_with_expenses.append({
+                'project': project,
+                'expenses': expense_data
+            })
+            grand_total_expense += expense_data['total_expense']
+            grand_total_advance += expense_data['total_advance']
+            grand_net_payable += expense_data['net_payable']
+        
+        context['projects_with_expenses'] = projects_with_expenses
+        context['grand_total_expense'] = grand_total_expense
+        context['grand_total_advance'] = grand_total_advance
+        context['grand_net_payable'] = grand_net_payable
+        
+        # Add filter context
+        context['search_query'] = self.request.GET.get('q', '')
+        context['start_date'] = self.start_date
+        context['end_date'] = self.end_date
+        
+        # Summary statistics
+        context['total_projects'] = context['projects'].count()
+        context['total_projects_with_expenses'] = len([p for p in projects_with_expenses if p['expenses']['total_expense'] > 0])
+        
+        return context
+
+
+class ProjectExpenseDetailView(LoginRequiredMixin, TemplateView):
+    """
+    Detailed view of all expenses for a specific project
+    """
+    template_name = 'expenditure_reports/project_expense_detail.html'
+    
+    def get_project(self):
+        return get_object_or_404(Project, pk=self.kwargs.get('pk'))
+    
+    def get_expenditures(self, project):
+        """Get all expenditures with optional filtering"""
+        
+        # Base querysets with select_related for efficiency
+        regular = RegularExpenditure.objects.filter(project=project).select_related('employee')
+        provision = ProvisionaryExpenditure.objects.filter(project=project).select_related('employee')
+        operation = OperationalExpenditure.objects.filter(project=project).select_related('master_mariner')
+        
+        # Apply date filters
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        
+        if start_date:
+            start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+            regular = regular.filter(date__gte=start_date)
+            provision = provision.filter(date__gte=start_date)
+            operation = operation.filter(date__gte=start_date)
+            self.start_date = start_date
+        else:
+            self.start_date = None
+            
+        if end_date:
+            end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+            regular = regular.filter(date__lte=end_date)
+            provision = provision.filter(date__lte=end_date)
+            operation = operation.filter(date__lte=end_date)
+            self.end_date = end_date
+        else:
+            self.end_date = None
+        
+        # Apply expenditure type filter
+        expense_type = self.request.GET.get('expense_type')
+        if expense_type == 'regular':
+            provision = ProvisionaryExpenditure.objects.none()
+            operation = OperationalExpenditure.objects.none()
+        elif expense_type == 'provision':
+            regular = RegularExpenditure.objects.none()
+            operation = OperationalExpenditure.objects.none()
+        elif expense_type == 'operation':
+            regular = RegularExpenditure.objects.none()
+            provision = ProvisionaryExpenditure.objects.none()
+        
+        return {
+            'regular': regular.order_by('-date'),
+            'provision': provision.order_by('-date'),
+            'operation': operation.order_by('-date'),
+        }
+    
+    def get_totals(self, expenditures):
+        """Calculate totals from expenditures"""
+        regular_total = sum(e.total for e in expenditures['regular'])
+        provision_total = sum(e.total for e in expenditures['provision'])
+        operation_total = sum(e.total for e in expenditures['operation'])
+        
+        regular_advance = sum(e.paid_in_advance for e in expenditures['regular'])
+        provision_advance = sum(e.paid_in_advance for e in expenditures['provision'])
+        
+        total_expense = regular_total + provision_total + operation_total
+        total_advance = regular_advance + provision_advance
+        net_payable = total_expense - total_advance
+        
+        return {
+            'regular_total': regular_total,
+            'provision_total': provision_total,
+            'operation_total': operation_total,
+            'total_expense': total_expense,
+            'total_advance': total_advance,
+            'net_payable': net_payable,
+            'regular_count': expenditures['regular'].count(),
+            'provision_count': expenditures['provision'].count(),
+            'operation_count': expenditures['operation'].count(),
+        }
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
+        expenditures = self.get_expenditures(project)
+        totals = self.get_totals(expenditures)
+        
+        context['project'] = project
+        context['regular_expenditures'] = expenditures['regular']
+        context['provision_expenditures'] = expenditures['provision']
+        context['operation_expenditures'] = expenditures['operation']
+        context['totals'] = totals
+        
+        # Filter context
+        context['start_date'] = self.start_date.strftime('%Y-%m-%d') if self.start_date else ''
+        context['end_date'] = self.end_date.strftime('%Y-%m-%d') if self.end_date else ''
+        context['expense_type'] = self.request.GET.get('expense_type', '')
+        
+        # Chart data (optional, for visualization)
+        context['chart_labels'] = ['Regular', 'Provisionary', 'Operational']
+        context['chart_data'] = [totals['regular_total'], totals['provision_total'], totals['operation_total']]
+        
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        """Handle export to CSV"""
+        import csv
+        
+        if 'export_csv' in request.POST:
+            project = self.get_project()
+            expenditures = self.get_expenditures(project)
+            
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="{project.project_number}_expenses.csv"'
+            
+            writer = csv.writer(response)
+            writer.writerow(['Date', 'Type', 'Employee/Mariner', 'Description', 'Amount', 'Advance Paid', 'Net Payable'])
+            
+            # Write regular expenditures
+            for exp in expenditures['regular']:
+                writer.writerow([
+                    exp.date.strftime('%Y-%m-%d'),
+                    'Regular',
+                    exp.employee.name,
+                    f"OT: {exp.ot_hours}h @ {exp.ot_rate}/hr, Conveyance: {exp.conveyance}, Boat: {exp.boat_fee}, Food: {exp.fooding_fee}, Hotel: {exp.hotel_fee}, Night Allow: {exp.night_allownce}, Others: {exp.others}",
+                    exp.total,
+                    exp.paid_in_advance,
+                    exp.net_payable
+                ])
+            
+            # Write provision expenditures
+            for exp in expenditures['provision']:
+                writer.writerow([
+                    exp.date.strftime('%Y-%m-%d'),
+                    'Provisionary',
+                    exp.employee.name,
+                    f"Fixed: {exp.fixed_amount}, OT: {exp.ot_hours}h @ {exp.ot_rate}/hr, Conveyance: {exp.conveyance}, Boat: {exp.boat_fee}, Food: {exp.fooding_fee}, Hotel: {exp.hotel_fee}, Night Allow: {exp.night_allownce}, Others: {exp.others}",
+                    exp.total,
+                    exp.paid_in_advance,
+                    exp.net_payable
+                ])
+            
+            # Write operational expenditures
+            for exp in expenditures['operation']:
+                writer.writerow([
+                    exp.date.strftime('%Y-%m-%d'),
+                    'Operational',
+                    exp.master_mariner.name if exp.master_mariner else 'N/A',
+                    f"Escort: {exp.escort}, Mariner: {exp.mariner}, Equipment: {exp.equipment}, Speedboat: {exp.speedboat}, Others: {exp.others}",
+                    exp.total,
+                    'N/A',
+                    exp.total
+                ])
+            
+            return response
+        
+        return super().get(request, *args, **kwargs)

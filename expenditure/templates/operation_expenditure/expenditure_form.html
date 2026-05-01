@@ -1,3 +1,4 @@
+<!-- operation_expenditure/expenditure_form.html -->
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 
@@ -8,7 +9,39 @@
             <h3>{% if object %}Update{% else %}Create New{% endif %} Operation Expenditure</h3>
         </div>
         <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
+            
+            <!-- Display Non-Field Errors (Global form errors) -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong><i class="fas fa-exclamation-triangle"></i> Error!</strong>
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+            
+            <!-- Display Form Errors Summary -->
+            {% if form.errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong><i class="fas fa-exclamation-circle"></i> Please correct the following errors:</strong>
+                    <ul class="mb-0 mt-2">
+                        {% for field in form %}
+                            {% if field.errors %}
+                                <li>
+                                    <strong>{{ field.label }}:</strong>
+                                    {% for error in field.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+            
+            <form method="post" enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
                 
                 <div class="row">
@@ -27,17 +60,16 @@
                 <div class="row mt-3">
                     <h5>Fees</h5>
                     <div class="col-md-6">
-                        
                         {{ form.escort|as_crispy_field }}
                         {{ form.mariner|as_crispy_field }}
+                        {{ form.master_mariner|as_crispy_field }}
                         {{ form.equipment|as_crispy_field }}
-                        
                     </div>
                     <div class="col-md-6">
                         {{ form.speedboat|as_crispy_field }}
                         {{ form.others|as_crispy_field }}
-                        <div>
-                            <label for="total">Total:</label>
+                        <div class="mb-3">
+                            <label for="total" class="form-label">Total:</label>
                             <input type="text" id="total" class="form-control" readonly>
                         </div>
                     </div>
@@ -47,7 +79,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> {% if object %}Update{% else %}Create{% endif %}
                     </button>
-                    <a href="{% if object %}{% url 'expenditure:operation-detail' object.pk %}{% else %}{% url 'expenditure:operation-list' %}{% endif %}" 
+                    <a href="{% if object %}{% url 'expenditures:operation-detail' object.pk %}{% else %}{% url 'expenditures:operation-list' %}{% endif %}" 
                        class="btn btn-secondary">
                         <i class="fas fa-times"></i> Cancel
                     </a>
@@ -59,31 +91,113 @@
         </div>
     </div>
 </div>
+
 <script>
+    // Get form fields
     const escortInput = document.getElementById('id_escort');
     const equipmentInput = document.getElementById('id_equipment');
     const marinerInput = document.getElementById('id_mariner');
     const speedboatInput = document.getElementById('id_speedboat');
     const othersInput = document.getElementById('id_others');
-
     const totalInput = document.getElementById('total');
     
+    // Function to update total
     function updateTotal() {
-        const escort = parseFloat(escortInput.value) || 0;
-        const equipment = parseFloat(equipmentInput.value) || 0;
-        const mariner = parseFloat(marinerInput.value) || 0;
-        const speedboat = parseFloat(speedboatInput.value) || 0;
-        const others = parseFloat(othersInput.value) || 0;
+        const escort = parseFloat(escortInput?.value) || 0;
+        const equipment = parseFloat(equipmentInput?.value) || 0;
+        const mariner = parseFloat(marinerInput?.value) || 0;
+        const speedboat = parseFloat(speedboatInput?.value) || 0;
+        const others = parseFloat(othersInput?.value) || 0;
 
-
-        totalInput.value = (escort + equipment + mariner + speedboat + others ).toFixed(2);
+        if (totalInput) {
+            totalInput.value = (escort + equipment + mariner + speedboat + others).toFixed(2);
+        }
     }
 
-    escortInput.addEventListener('input', updateTotal);
-    equipmentInput.addEventListener('input', updateTotal);
-    marinerInput.addEventListener('input', updateTotal);
-    speedboatInput.addEventListener('input', updateTotal);
-    othersInput.addEventListener('input', updateTotal);
-
+    // Add event listeners
+    if (escortInput) escortInput.addEventListener('input', updateTotal);
+    if (equipmentInput) equipmentInput.addEventListener('input', updateTotal);
+    if (marinerInput) marinerInput.addEventListener('input', updateTotal);
+    if (speedboatInput) speedboatInput.addEventListener('input', updateTotal);
+    if (othersInput) othersInput.addEventListener('input', updateTotal);
+    
+    // Show/hide master mariner field based on mariner value
+    const masterMarinerGroup = document.querySelector('.field-master_mariner');
+    
+    function toggleMasterMarinerField() {
+        const marinerValue = parseFloat(marinerInput?.value) || 0;
+        if (masterMarinerGroup) {
+            if (marinerValue > 0) {
+                masterMarinerGroup.style.display = 'block';
+                // Add required attribute to master_mariner field when mariner > 0
+                const masterMarinerInput = document.getElementById('id_master_mariner');
+                if (masterMarinerInput) {
+                    masterMarinerInput.setAttribute('required', 'required');
+                }
+            } else {
+                masterMarinerGroup.style.display = 'none';
+                // Remove required attribute when mariner = 0
+                const masterMarinerInput = document.getElementById('id_master_mariner');
+                if (masterMarinerInput) {
+                    masterMarinerInput.removeAttribute('required');
+                }
+            }
+        }
+    }
+    
+    // Initial check and update
+    updateTotal();
+    toggleMasterMarinerField();
+    
+    // Add listener for mariner input
+    if (marinerInput) {
+        marinerInput.addEventListener('input', toggleMasterMarinerField);
+    }
+    
+    // Auto-dismiss alerts after 5 seconds
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            const bsAlert = new bootstrap.Alert(alert);
+            setTimeout(function() {
+                bsAlert.close();
+            }, 5000);
+        });
+    }, 100);
 </script>
+
+<style>
+    /* Style for error fields */
+    .is-invalid {
+        border-color: #dc3545;
+        padding-right: calc(1.5em + 0.75rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    .error-feedback {
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875em;
+        color: #dc3545;
+    }
+    
+    /* Animate alerts */
+    .alert {
+        animation: slideDown 0.5s ease-out;
+    }
+    
+    @keyframes slideDown {
+        from {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+</style>
 {% endblock %}
