@@ -571,8 +571,7 @@ class ProjectExpenseReportView(LoginRequiredMixin, ListView):
         if search_query:
             queryset = queryset.filter(
                 Q(project_number__icontains=search_query) |
-                Q(client__name__icontains=search_query) |
-                Q(client__client_code__icontains=search_query)
+                Q(client__name__icontains=search_query)
             )
         
         # Filter by date range based on project dates
