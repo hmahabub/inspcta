@@ -57,6 +57,7 @@ class BankBookListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         account_id = self.request.GET.get('account',1)
         context['bank_account'] = BankAccount.objects.get(id=account_id)
+        context['bank_accounts'] = BankAccount.objects.all().order_by('bank_name', 'name')
 
         today = timezone.now().date()
         one_month_before = today - timedelta(days=30)
