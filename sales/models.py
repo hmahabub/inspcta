@@ -6,6 +6,8 @@ from projects.models import Project
 from dashboard.models import CurrencyRate
 from django.core.validators import MinValueValidator
 from django.utils import timezone
+from decimal import Decimal
+
 
 class Sale(models.Model):
     CURRENCY_CHOICES = [
@@ -50,16 +52,16 @@ class Sale(models.Model):
         if self.project.client.types == 'INT':
             vat_amount = 0
         else:
-            vat_amount = float(self.total_amount) * .15
+            vat_amount = Decimal(self.total_amount) * .15
         return vat_amount
 
     @property
     def net_recieved(self):
-        return float(self.recieved_amount) - float(self.vat)
+        return Decimal(self.recieved_amount) - Decimal(self.vat)
 
     @property
     def balance_amount(self):
-        return float(self.total_amount) - float(self.recieved_amount)
+        return Decimal(self.total_amount) - Decimal(self.recieved_amount)
 
     @property
     def bdt_equivalent(self):
