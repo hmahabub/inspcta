@@ -52,7 +52,7 @@ class Sale(models.Model):
         if self.project.client.types == 'INT':
             vat_amount = Decimal('0.00')
         else:
-            vat_rate = Decimal("0.15")
+            vat_rate = Decimal(0.15)
             vat_amount = Decimal(self.total_amount) *  vat_rate
         return vat_amount
 
