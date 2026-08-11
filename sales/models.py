@@ -50,9 +50,9 @@ class Sale(models.Model):
     @property
     def vat(self):
         if self.project.client.types == 'INT':
-            vat_amount = 0
+            vat_amount = Decimal('0.00')
         else:
-            vat_amount = Decimal(self.total_amount) * Decimal(.15)
+            vat_amount = Decimal(self.total_amount) *  Decimal('0.15')
         return vat_amount
 
     @property
