@@ -50,7 +50,7 @@ class Sale(models.Model):
         if self.project.client.types == 'INT':
             vat_amount = 0
         else:
-            vat_amount = self.total_amount * .15
+            vat_amount = float(self.total_amount) * .15
         return vat_amount
 
     @property
