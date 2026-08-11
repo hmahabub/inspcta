@@ -55,11 +55,11 @@ class Sale(models.Model):
 
     @property
     def net_recieved(self):
-        return float(self.recieved_amount) - self.vat
+        return float(self.recieved_amount) - float(self.vat)
 
     @property
     def balance_amount(self):
-        return float(self.total_amount) - self.recieved_amount
+        return float(self.total_amount) - float(self.recieved_amount)
 
     @property
     def bdt_equivalent(self):
