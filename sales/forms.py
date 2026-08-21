@@ -20,8 +20,8 @@ class SaleForm(forms.ModelForm):
                 },
             ),
             'currency': forms.Select(attrs={'class': 'form-select'}),
-            'invoice_no' : forms.TextInput(attrs={'readonly':'readonly'}),
-            'report_no' : forms.TextInput(attrs={'readonly':'readonly'}),
+            'invoice_no' : forms.TextInput(), #attrs={'readonly':'readonly'}
+            'report_no' : forms.TextInput(), #attrs={'readonly':'readonly'}
             'invoice_date': forms.DateInput(attrs={'type': 'date'}),
             'report_date': forms.DateInput(attrs={'type': 'date'}),
         }
@@ -41,7 +41,7 @@ class SaleForm(forms.ModelForm):
             invoice_no = existing_projects + 1
             next_code = f"{year_prefix}{invoice_no:05d}"
             self.fields['invoice_no'].initial = next_code
-            self.fields['invoice_no'].disabled = True
+            # self.fields['invoice_no'].disabled = True
 
             current_year = timezone.now().year % 100  # e.g., 2025 → 25
             year_prefix = f"{current_year:02d}IBLR"
@@ -50,7 +50,7 @@ class SaleForm(forms.ModelForm):
             report_no = existing_projects + 1
             next_code = f"{year_prefix}{report_no:04d}"
             self.fields['report_no'].initial = next_code
-            self.fields['report_no'].disabled = True
+            # self.fields['report_no'].disabled = True
         else:
             self.fields['project'].disabled = True
 
